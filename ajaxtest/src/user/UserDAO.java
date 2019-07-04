@@ -15,7 +15,9 @@ public class UserDAO {
 	
 	public UserDAO() {
 		try {
-			String dbURL = "jdbc:mysql://localhost:3306/ajaxtest";
+			// ?verifyServerCertificate=false&useSSL=false --> SSL인증 끄기 --> 사용방법??????
+			String dbURL = "jdbc:mysql://localhost:3306/ajaxtest?verifyServerCertificate=false&useSSL=false";
+			//String dbURL = "jdbc:mysql://localhost:3306/ajaxtest";
 			String dbID = "javauser";
 			String dbPassword = "javapass";
 			Class.forName("com.mysql.jdbc.Driver");
@@ -27,7 +29,7 @@ public class UserDAO {
 	}
 	
 	public ArrayList<User> search(String userName) {
-		String sql = "select * from user where userName like ?";
+		String sql = "SELECT * FROM USER WHERE userName LIKE '%' ? '%'";
 		ArrayList<User> userList = new ArrayList<User>();
 		try {
 			pstmt = conn.prepareStatement(sql);
@@ -46,6 +48,22 @@ public class UserDAO {
 		}
 		return userList;
 		
+	}
+	
+	public int register(User user) {
+		String sql = "insert into user values ( ?, ?, ?, ?)";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, user.getUserName());
+			pstmt.setInt(2, user.getUserAge());
+			pstmt.setString(3, user.getUserGender());
+			pstmt.setString(4, user.getUserEmail());
+			//실행되는 결과값 반환 : 성공시 1 반환됨.
+			return pstmt.executeUpdate();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return -1; //데이터베이스 오류 시
 	}
 	
 }

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 -- 테이블 데이터 ajaxtest.user:~3 rows (대략적) 내보내기
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-REPLACE INTO `user` (`userName`, `userAge`, `usergender`, `userEmail`) VALUES
+REPLACE INTO `user` (`userName`, `userAge`, `userGender`, `userEmail`) VALUES
 	('김이박', 22, '남자', 'koFamName@gmail.com'),
 	('으엌이', 23, '남자', 'Eww-uk@gmail.com'),
 	('쿡쿡', 30, '여자', 'cookcook@gmail.com');
