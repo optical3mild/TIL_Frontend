@@ -12,17 +12,18 @@
 	<!-- script type : 없어도 작동되지만 작성시 브라우저가 좀더 안정적으로 작동. -->
 	<script type="text/javascript">
 		// XMLHttpRequest() : 어떤 웹사이트에 요청을 하는 인스턴스.
-		var request = new XMLHttpRequest();
+		var searchRequest = new XMLHttpRequest();
+		var registerRequest = new XMLHttpRequest();
 		function searchFunction() {
 			//요청을 열고(?) post방식으로 UserSearchServlet이란 페이지에
 			//userName으로 입력된 값(value)을 utf8로 인코딩하여 보냄 
-			request.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent(document.getElementById("userName").value),true)
-			//request.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent("%"+ document.getElementById("userName").value +"%"),true)
+			searchRequest.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent(document.getElementById("userName").value),true)
+			//searchRequest.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent("%"+ document.getElementById("userName").value +"%"),true)
 			//--> 서블릿으로 전송된 parameter를 처리하여 json형식으로 받음 
 			
 			//성공적으로 실행되었다면 searchPorcess를 실행.
-			request.onreadystatechange=searchProcess;
-			request.send(null);
+			searchRequest.onreadystatechange = searchProcess;
+			searchRequest.send(null);
 		}
 		function searchProcess() {
 			var table = document.getElementById("ajaxTable");
@@ -30,10 +31,10 @@
 			//table안의 내용을 전부지움
 			table.innerHTML = "";
 			
-			//통신 성공시 request의 readyState 값이 4, status값이 200 
-			if(request.readyState == 4 && request.status == 200) {
-				//object에 request의 responseText(servlet에서 만든 json 데이터)를 받음
-				var object = eval('(' + request.responseText + ')');
+			//통신 성공시 searchRequest의 readyState 값이 4, status값이 200 
+			if(searchRequest.readyState == 4 && searchRequest.status == 200) {
+				//object에 searchRequest의 responseText(servlet에서 만든 json 데이터)를 받음
+				var object = eval('(' + searchRequest.responseText + ')');
 				//result변수에 object변수의 result가 담김
 				//servlet안에서 result란 이름으로 데이터를 배열로 담기 때문에 result를 가져옴
 				var result = object.result;
@@ -51,6 +52,39 @@
 				}
 			}
 		}
+		function registerFunction() {
+			//요청을 열고(?) post방식으로 UserRegisterServlet이란 페이지에
+			//userName으로 입력된 값(value)을 utf8로 인코딩하여 보냄 
+			//registerGender는 id값 사용없이 name으로 묶어져 있음. jQuery 사용.
+			registerRequest.open("Post", "./UserRegisterServlet?userName=" + encodeURIComponent(document.getElementById("registerName").value)
+															+ "&userAge=" + encodeURIComponent(document.getElementById("registerAge").value)
+															+ "&userGender=" + encodeURIComponent($('input[name=registerGender]:checked').val())
+															+ "&userEmail=" + encodeURIComponent(document.getElementById("registerEmail").value),true);
+			//성공적으로 실행되었다면 registerProcess를 실행.
+			registerRequest.onreadystatechange = registerProcess;
+			registerRequest.send(null);
+		}
+		
+		function registerProcess() {
+			if(registerRequest.readyState == 4 && registerRequest.status == 200) {
+				var result = registerRequest.responseText;
+				if(result != 1) {
+					alert("등록에 실패했습니다.");
+				} else {
+					//등록에 성공했다면 화면의 입력란을 전부 공백으로 만들어줌.
+					var userName = document.getElementById("userName");
+					var registerName = document.getElementById("registerName");
+					var registerAge = document.getElementById("registerAge");
+					var registerEmail = document.getElementById("registerEmail");
+					userName.value = "";
+					registerName.value = "";
+					registerAge.value = "";
+					registerEmail.value = "";
+					searchFunction();
+				}
+			}
+		}
+		
 		//페이지 첫 로딩시 자동으로 함수 작동.
 		window.onload = function() {
 			searchFunction();
