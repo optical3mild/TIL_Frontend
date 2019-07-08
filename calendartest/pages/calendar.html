@@ -62,6 +62,9 @@
               <!-- the events -->
               <div id="external-events">
                 <div class="external-event bg-green">Lunch</div>
+                <div class="external-event" style="background-color: rgb(96, 92, 168);">오전</div>
+                <div class="external-event">오후</div>
+                <div class="external-event">야간</div>
                 <div class="external-event bg-yellow">Go home</div>
                 <div class="external-event bg-aqua">Do homework</div>
                 <div class="external-event bg-light-blue">Work on UI design</div>
@@ -360,38 +363,28 @@
 <!-- Page specific script -->
 <script>
 //1. 전체 삭제버튼
+var index = 0;
+
 $('#trashbox').click(function() {
-    $('td').remove('.fc-event-container');
+  // $('td').remove('.fc-event-container');
+  alert(length);
 });
-//2. 요소 클릭시 삭제
-$('#calendar').on('click','.fc-event-container',function() {
-    alert('클릭');
-    $(this).removeAttr('class');
-    $(this).removeAttr('colspan');
-    $(this).empty();
-});
+
+// //2. 요소 클릭시 삭제
+// $('#calendar').on('click','.fc-event-container',function() {
+//   alert('클릭');
+//   $(this).removeAttr('class');
+//   $(this).removeAttr('colspan');
+//   $(this).empty();
+//
+// });
   $(function () {
-    //1. 전체 삭제버튼
-    $('#trashbox').click(function() {
-        $('td').remove('.fc-event-container');
-    });
-
-
-    // dropable 대상/함수를 만들고 this remove. -->실패.
-      $('#trashbox').droppable({
-        drop: function(event, ui) {
-
-            $(this).remove()
-
-        }
-      })
-
 
     /* initialize the external events
      -----------------------------------------------------------------*/
+    //external event 영역에서 drag할 div목록의 속성을 설정하는 함수.
     function init_events(ele) {
       ele.each(function () {
-
         // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
         // it doesn't need to have a start or end
         var eventObject = {
@@ -410,7 +403,7 @@ $('#calendar').on('click','.fc-event-container',function() {
 
       })
     }
-
+    //없으면 draggable event drag 불가. --> external event의 요소를 전부 함수로 처리. drag가능하게 바꿈.
     init_events($('#external-events div.external-event'))
 
     /* initialize the calendar
@@ -420,6 +413,7 @@ $('#calendar').on('click','.fc-event-container',function() {
     var d    = date.getDate(),
         m    = date.getMonth(),
         y    = date.getFullYear()
+    // var dayType = new Date(y,m,day);
     $('#calendar').fullCalendar({
       header    : {
         left  : 'prev,next today',
@@ -432,6 +426,7 @@ $('#calendar').on('click','.fc-event-container',function() {
         week : 'week',
         day  : 'day'
       },
+
       //Random default event
 //ajax로 불러올 데이터 부분.
       events    : [
@@ -443,8 +438,8 @@ $('#calendar').on('click','.fc-event-container',function() {
         },
         {
           title          : 'Long Event',
-          start          : new Date(y, m, d - 5),
-          end            : new Date(y, m, d - 2),
+          start          : new Date(y, m, d - 5,10,30),
+          end            : new Date(y, m, d - 2,14,30),
           backgroundColor: '#f39c12', //yellow
           borderColor    : '#f39c12' //yellow
         },
@@ -478,23 +473,66 @@ $('#calendar').on('click','.fc-event-container',function() {
           url            : 'http://google.com/',
           backgroundColor: '#3c8dbc', //Primary (light-blue)
           borderColor    : '#3c8dbc' //Primary (light-blue)
+        },
+        {
+          title          : 'check',
+          start          : new Date(2019, 6, 15),
+          end            : new Date(2019, 6, 17),
+          allDay         : false,
+          backgroundColor: '#00a65a', //Success (green)
+          borderColor    : '#00a65a' //Success (green)
         }
       ],
+
+      //다중선택 세팅.------------
+      selectable: true,
+      selectHelper: true,
+      select: function(start, end, allDay) {
+          var title = prompt('Event Title:');
+          if (title) {
+              $('#calendar').fullCalendar('renderEvent',
+                  {
+                      id: "listOb"+index,
+                      title: title,
+                      start: start,
+                      end: end,
+                      allDay: allDay,
+                      backgroundColor: '#00a65a', //Success (green)
+                      borderColor    : '#00a65a' //Success (green)
+                  },
+                  true // make the event "stick"
+
+              );
+              index++;
+          }
+          $('#calendar').fullCalendar('unselect');
+      },
+      //.다중선택 세팅---------------
+
+
+
       editable  : true,
       droppable : true, // this allows things to be dropped onto the calendar !!!
       drop      : function (date, allDay) { // this function is called when something is dropped
 
         // retrieve the dropped element's stored Event Object
-        var originalEventObject = $(this).data('eventObject')
+        var originalEventObject = $(this).data('eventObject');
 
         // we need to copy it, so that multiple events don't have a reference to the same object
+        //calendar내 drop시 external event 영역에서 대상을 복사...
+        // copiedEventObject = $.extend({}, originalEventObject)
         var copiedEventObject = $.extend({}, originalEventObject)
 
         // assign it the date that was reported
+        copiedEventObject.id = "listOb"+index;
+        // alert("id: " + copiedEventObject.id);
+        index++;
         copiedEventObject.start           = date
-        copiedEventObject.allDay          = allDay
+        //allday property 옵션이 false일때, 월별 표시창에서 event바 길이조정 불가.
+        copiedEventObject.allDay          = true
         copiedEventObject.backgroundColor = $(this).css('background-color')
         copiedEventObject.borderColor     = $(this).css('border-color')
+
 
         // render the event on the calendar
         // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
@@ -506,9 +544,18 @@ $('#calendar').on('click','.fc-event-container',function() {
           $(this).remove()
         }
 
-      }
-    })
+      },
+      //생성 시 고유 id를 부여하여 삭제
+      eventClick: function (calEvent, jsEvent, view) {
+        $('#calendar').fullCalendar('removeEvents', calEvent.id);
+      },
 
+      // dayClick: function(date, jsEvent, view) {
+      //   alert('Clicked on: ' + date.format());
+      //   alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+      //   alert('Current view: ' + view.name);
+      // }
+    })
 
     /* ADDING EVENTS */
     var currColor = '#3c8dbc' //Red by default
