@@ -352,11 +352,36 @@
           <span aria-hidden="true">×</span>
         </button>
       </div>
-      <div class="modal-body">테스트</div>
+      <div id="varTest"></div>
+      <div class="modal-body">
+        <table>
+          <tbody>
+            <tr>
+              <td>title</td>
+              <td><input id="mEventTitle" type="text" value=""></td>
+            </tr>
+            <tr>
+              <td>시작</td>
+              <td><input id="modalEStart" type="text" value=""></td>
+            </tr>
+            <tr>
+              <td>종료</td>
+              <td><input id="modalEEnd" type="text" value=""></td>
+            </tr>
+            <tr>
+              <td>배경색</td>
+              <td><input id="mEventBack" type="text" value=""></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="modal-footer">
 
-        <!-- 경우마다 이동할 경로 수신필요 -->
-        <button class="btn btn-primary" type="button" data-dismiss="modal">확인</button>
+        <!-- 이벤트 생성, 창닫기 -->
+        <button id="makeEvent" class="btn btn-primary" type="button" data-dismiss="modal">확인</button>
+        <button id="closeEventModal" class="btn btn-primary" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">취소</span>
+        </button>
       </div>
     </div>
   </div>
@@ -381,8 +406,12 @@
 <script src="../bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
 <!-- Page specific script -->
 <script>
-var index = 0;
+$(function() {
 
+
+var startYMD;
+var endYMD;
+// var tOption;
 //전체 삭제버튼
 $('#trashbox').click(function() {
   $('#calendar').fullCalendar('removeEvents')
@@ -396,6 +425,32 @@ $('#trashbox').click(function() {
 //   $(this).empty();
 //
 // });
+
+// 모달창에서 확인버튼 누를 시 input box에서 입력된 값을 가져와 처리
+$('#makeEvent').click(function() {
+  var title = $("#modalETitle").val();
+  var start = $("#modalEStart").val();
+  var end = $("#modalEEnd").val();
+  // var background = $("#modalEBack").val();
+
+  $('#calendar').fullCalendar('renderEvent',
+      {
+          //id :  --> userId+start+end
+          title: title,
+          start: start,
+          end: end,
+          allDay: allday,
+          backgroundColor: '#00a65a', //Success (green)
+          borderColor    : '#00a65a' //Success (green)
+      },
+      true // make the event "stick"
+  );
+});
+
+$('#closeEventModal').click(function() {
+  //전역변수 초기화.
+  //모달창 입력값 초기화.
+});
 
 //$function() { }); --> body에 있는 모든 html태그를 로딩한 후 jQuery 스크립트를 실행
   $(function () {
@@ -452,140 +507,36 @@ $('#trashbox').click(function() {
         week : 'week',
         day  : 'day'
       },
-
-      //Random default event - Dummy.
-      //ajax로 불러올 데이터 부분.
-      events    : [
-        {
-          title          : 'All Day Event',
-          start          : new Date(y, m, 1),
-          backgroundColor: '#f56954', //red
-          borderColor    : '#f56954' //red
-        },
-        {
-          title          : 'Long Event',
-          start          : new Date(y, m, d - 5,10,30),
-          end            : new Date(y, m, d - 2,14,30),
-          backgroundColor: '#f39c12', //yellow
-          borderColor    : '#f39c12' //yellow
-        },
-        {
-          title          : 'Meeting',
-          start          : new Date(y, m, d, 10, 30),
-          allDay         : false,
-          backgroundColor: '#0073b7', //Blue
-          borderColor    : '#0073b7' //Blue
-        },
-        {
-          title          : 'Lunch',
-          start          : new Date(y, m, d, 12, 0),
-          end            : new Date(y, m, d, 14, 0),
-          allDay         : false,
-          backgroundColor: '#00c0ef', //Info (aqua)
-          borderColor    : '#00c0ef' //Info (aqua)
-        },
-        {
-          title          : 'Birthday Party',
-          start          : new Date(y, m, d + 1, 19, 0),
-          end            : new Date(y, m, d + 1, 22, 30),
-          allDay         : false,
-          backgroundColor: '#00a65a', //Success (green)
-          borderColor    : '#00a65a' //Success (green)
-        },
-        {
-          title          : 'Click for Google',
-          start          : new Date(y, m, 28),
-          end            : new Date(y, m, 29),
-          url            : 'http://google.com/',
-          backgroundColor: '#3c8dbc', //Primary (light-blue)
-          borderColor    : '#3c8dbc' //Primary (light-blue)
-        },
-        {
-          title          : 'check',
-          start          : new Date(2019, 6, 15),
-          end            : new Date(2019, 6, 17),
-          allDay         : false,
-          backgroundColor: '#00a65a', //Success (green)
-          borderColor    : '#00a65a' //Success (green)
-        }
-      ],
-
       // select로 calendar위에 이벤트 아이템 생성.
       selectable: true,
       selectHelper: true,
       //마우스로 셀렉트 이벤트 발생 시 콜백함수 동작 - 매개변수: start, end, allDay(=시간선택x)
-      select: function(start, end, allDay) {
+      select: function(start, end) {
           //modal을 띄워 시간선택
           //start+end+time --> title로.
           //ajax에는 userid + dataset으로 전송되도록.
           // var title = prompt('Event Title:');
-          var title, time, color;
-          title = "테스트 타이틀";
-
           $('#selectPopup').modal('show');
+          startYMD = start;
+          endYMD = end;
+          // tOption = allDay;
+          // $('#varTest').text(endYMD);
 
-          if (title) {
-              $('#calendar').fullCalendar('renderEvent',
-                  {
-                      id: "listOb"+index,
-                      title: title,
-                      start: start,
-                      end: end,
-                      allDay: allDay,
-                      backgroundColor: '#00a65a', //Success (green)
-                      borderColor    : '#00a65a' //Success (green)
-                  },
-                  true // make the event "stick"
+          // $('#varTest').text(tOption);
 
-              );
-              index++;
-          }
-          $('#calendar').fullCalendar('unselect');
+            $("#modalEStart").val(start);
+            $("#modalEEnd").val(end);
+
       },
       //.다중선택 세팅---------------
 
-
-
       editable  : true,
       droppable : true, // this allows things to be dropped onto the calendar !!!
-      drop      : function (date, allDay) { // this function is called when something is dropped
 
-        // retrieve the dropped element's stored Event Object\
-        var originalEventObject = $(this).data('eventObject');
-
-        // we need to copy it, so that multiple events don't have a reference to the same object
-        //calendar내 drop시 external event 영역에서 대상을 복사...
-        // copiedEventObject = $.extend({}, originalEventObject)
-        var copiedEventObject = $.extend({}, originalEventObject)
-
-        // assign it the date that was reported
-        copiedEventObject.id = "listOb"+index;
-        // alert("id: " + copiedEventObject.id);
-        index++;
-        copiedEventObject.start           = date
-        //allday property 옵션이 false일때, 월별 표시창에서 event바 길이조정 불가.
-        copiedEventObject.allDay          = true
-        copiedEventObject.backgroundColor = $(this).css('background-color')
-        copiedEventObject.borderColor     = $(this).css('border-color')
-
-
-        // render the event on the calendar
-        // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-        $('#calendar').fullCalendar('renderEvent', copiedEventObject, true)
-
-        // is the "remove after drop" checkbox checked?
-        if ($('#drop-remove').is(':checked')) {
-          // if so, remove the element from the "Draggable Events" list
-          $(this).remove()
-        }
-
-      },
       //생성 시 고유 id를 부여하여 삭제
       //수정필요 : id가 없는경우 삭제되지 않도록.
       eventClick: function (calEvent, jsEvent, view) {
-        //calender에 보이는 부분과 내장객체 삭제
         $('#calendar').fullCalendar('removeEvents', calEvent.id);
-        //페이지에서 관리하는 객체 배열에서 검색, 삭제
       },
 
       // dayClick: function(date, jsEvent, view) {
