@@ -343,6 +343,7 @@
 </div>
 <!-- ./wrapper -->
 
+<!-- Input Modal Form : jQuery 코드로 변환할 것. -->
 <div class="modal fade" id="selectPopup" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -353,24 +354,22 @@
         </button>
       </div>
       <div id="varTest"></div>
-      <div class="modal-body">
+      <div class="modal-body" id="inputTableForm">
         <table>
           <tbody>
             <tr>
-              <td>title</td>
-              <td><input id="modalETitle" type="text"></td>
-            </tr>
-            <tr>
               <td>시작 시간</td>
-              <td><input id="modalEStart" type="text"></td>
+              <td><input class="timeForm" name="startT" id="modalEStartTime" type="text"></td>
+              <td><input class="timeForm" name="startM" id="modalEStartMin" type="text"></td>
             </tr>
             <tr>
               <td>종료 시간</td>
-              <td><input id="modalEEnd" type="text"></td>
+              <td><input class="timeForm" name="endT" id="modalEEndTime" type="text"></td>
+              <td><input class="timeForm" name="endM" id="modalEEndMin" type="text"></td>
             </tr>
             <tr>
               <td>배경색</td>
-              <td><input id="modalEBack" type="text"></td>
+              <td colspan="2"><input id="modalEBack" type="text"></td>
             </tr>
           </tbody>
         </table>
@@ -407,13 +406,57 @@
 <!-- Page specific script -->
 <script>
 var userId = "testUser";
-var myEvents = new Array();
-var startYMD, endYMD;
+//fullCalendar select 이벤트로 선택된 날짜정보에서 연월일 추출.
 var startD, startM, startY;
 var endD, endM, endY;
 
-// var startYMD;
-// var endYMD;
+//title에 이용할 시간정보 조합함수
+//timeArray: 조작할 시간정보 배열
+//index: 시간정보 배열에서 읽어올 시작 index
+//sepChar: 삽입할 구분자
+//strLength: 인자를 변환할 길이
+function modifyTimeArray(timeArray, index, sepChar, strLength) {
+  var emptyBox = [];
+  var result;
+  for(var i=index; i<timeArray.length; i++) {
+    //문자열로 변환.
+    var temp = ""+timeArray[i];
+    if(temp == "") {
+      emptyBox[i-index] = "00";
+    } else if ((temp != "") && (temp.length < 2)) {
+        emptyBox[i-index] = "0" + temp;
+    } else if ((temp != "") && (temp.length > 2)) {
+        var cutPoint = temp.length - strLength;
+        emptyBox[i-index] = temp.slice(cutPoint);
+    } else {
+        emptyBox[i-index] = temp;
+    }
+  }
+  if(sepChar != null){
+    result = emptyBox.join(sepChar);
+  } else {
+    result = emptyBox.join('');
+  }
+  return result;
+}
+
+var dummyEvents = [{
+  id : 'testUser201971',
+  title          : 'All Day Event',
+  start          : new Date(2019, 6, 1),
+  backgroundColor: '#f56954', //red
+  borderColor    : '#f56954' //red
+},
+{
+  id : 'testUser2019751030',
+  title          : 'Meeting',
+  start          : new Date(2019, 6, 5, 10, 30),
+  allDay         : false,
+  backgroundColor: '#0073b7', //Blue
+  borderColor    : '#0073b7' //Blue
+},];
+
+//fullCalendar 로드, 초기화
 $(function() {
   $('#calendar').fullCalendar({
     header    : {
@@ -427,70 +470,96 @@ $(function() {
       week : 'week',
       day  : 'day'
     },
+    events : dummyEvents,
     selectable: true,
     selectHelper: true,
     select: function(start, end) {
       // 선택한 연도,월,일을 전역변수에 저장.
       startY = start.get('year');
-      startM = start.get('month') + 1;
-      console.log(startM);
+      startM = start.get('month');
       startD = start.get('date');
-      console.log(startD);
       endY = end.get('year');
       endM = end.get('month');
       endD = end.get('date');
 
-      startYMD = start;
-      endYMD = end;
       //modal popup.
       $('#selectPopup').modal('show');
-      //default values for input elements of modal by selecting.
     },
     //.다중선택 세팅---------------
 
     //delete
     eventClick: function (calEvent, jsEvent, view) {
       //calender에 보이는 부분과 내장객체 삭제
+      console.log(calEvent.data);
       $('#calendar').fullCalendar('removeEvents', calEvent.id);
-      //페이지에서 관리하는 객체 배열에서 검색, 삭제
-      $()
+      console.log('삭제한 이벤트: ');
+      console.log(calEvent.id);
+      console.log($('#calendar').data(calEvent.id));
+      $('#calendar').removeData(calEvent.id);
+      console.log('삭제 후 모든 event:');
+      console.log($('#calendar').data());
     },
   });
+  // ./ End of fullCalendar 초기화 -------------------------------------
 
   $('#makeEvent').click(function() {
-    var title = $('#modalETitle').val();
+    //modalform의 입력창을 class명으로 찾아 값을 가져오고, int값으로 변환하여 변수에 저장.
+    // $('#inputTableForm').find('.timeForm').each(function() {
+    //   //name을 확인하여 값을 가져옴
+        var name = $(this).attr
+    //   switch
+    //
+    // })
+    // var title = $('#modalETitle').val();
+    var inputSTime = $('#modalEStartTime').val();
+    var inputSMin = $('#modalEStartMin').val();
+    var inputETime = $('#modalEEndTime').val();
+    var inputEMin = $('#modalEEndMin').val();
 
-    var startConvert = new Date(startY, startM, startD);
 
-    var endConvert = new Date(endY,endM,endD);
+    var startConvert = [startY, startM, startD, inputSTime, inputSMin];
+    var endConvert = [endY, endM, endD, inputETime, inputEMin];
 
     //title은 차후 userId로 변경할 것.
-    var id = userId+startY+startM+startD+endY+endM+endD;
+    var id = userId+"_"+modifyTimeArray(startConvert,0,"",2)+modifyTimeArray(endConvert,0,"",2);
+    // modifyTimeArray(timeArray, index, sepChar, strLength)
+    console.log("id");
+    console.log(id);
 
     //title은 "시작시간 ~ 종료시간" 으로 자동생성 하도록 할 것.
+    var title = modifyTimeArray(startConvert,3,":") + " ~ "
+               + modifyTimeArray(endConvert,3,":");
+
     //동일 id 존재여부 확인하여 없는경우만 생성.
-    // var testObject = {
-    //   id : id,
-    //   title : title,
-    //   start : startConvert,
-    //   end : endConvert,
-    //   allDay : false,
-    //   backgroundColor : '#00a65a',
-    //   borderColor     : '#00a65a'
-    // }
-    // console.log(testObject);
+    var newEventObj = {
+      id : id,
+      title : title,
+      start : startConvert,
+      end : endConvert,
+      backgroundColor : '#00a65a',
+      borderColor     : '#00a65a'
+    }
+    console.log(newEventObj);
+    console.log(new Date(startY, startM, startD, inputSTime, inputSMin));
+    //rendering event 발생(실행?) --> 함수실행.
+
     $('#calendar').fullCalendar('renderEvent',
       {
         id : id,
         title : title,
-        start : startYMD,
-        end : endYMD,
-        allDay : false,
+        start : new Date(startY, startM, startD, inputSTime, inputSMin),
+        end : new Date(endY, endM, endD, inputETime, inputEMin),
+        allDay : true,
         backgroundColor : '#00a65a',
         borderColor     : '#00a65a'
       },
       true
     );
+    $('#calendar').data(id, newEventObj);
+    console.log('생성한 event: ');
+    console.log($('#calendar').data(id));
+    console.log('모든 event:');
+    console.log($('#calendar').data());
 
   });
 
