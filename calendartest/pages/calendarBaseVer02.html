@@ -400,6 +400,10 @@
 <script src="../dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../dist/js/demo.js"></script>
+
+<!-- AntPeople FullCalendar function -->
+<script src="../dist/js/ant_fullcalendar.js"></script>
+
 <!-- fullCalendar -->
 <script src="../bower_components/moment/moment.js"></script>
 <script src="../bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
@@ -407,64 +411,15 @@
 <script>
 var userId = "testUser";
 
-//fullCalendar select 이벤트로 선택된 날짜정보에서 연월일 추출.
-//시간, 분 정보 : 입력창에서 입력받은 값 또는 기존객체의 값을 가져옴.
-var startD, startM, startY, startT, startM;
-var endD, endM, endY, endT, endM;
-
-
-//title에 이용할 시간정보 조합함수
-  //timeArray: 조작할 시간정보 배열
-  //index: 시간정보 배열에서 읽어올 시작 index
-  //sepChar: 삽입할 구분자
-  //strLength: 인자를 변환할 길이
-function modifyTimeArray(timeArray, index, sepChar, strLength) {
-  var emptyBox = [];
-  var result;
-  for(var i=index; i<timeArray.length; i++) {
-    //문자열로 변환.
-    var temp = ""+timeArray[i];
-    if(temp == "") {
-      emptyBox[i-index] = "00";
-    } else if ((temp != "") && (temp.length < 2)) {
-        emptyBox[i-index] = "0" + temp;
-    } else if ((temp != "") && (temp.length > 2)) {
-        var cutPoint = temp.length - strLength;
-        emptyBox[i-index] = temp.slice(cutPoint);
-    } else {
-        emptyBox[i-index] = temp;
-    }
-  }
-  if(sepChar != null){
-    result = emptyBox.join(sepChar);
-  } else {
-    result = emptyBox.join('');
-  }
-  return result;
-};
-
-// 입력된 시간정보 값의 범위를 확인.
-function checkRange(eleName,value) {
-  if ((eleName.indexOf("Time") != -1) && (value >= 0) && (value <= 23)) {
-    return "time";
-  } else if ((eleName.indexOf("Min") != -1) && (value >= 0) && (value <= 59)) {
-    return "min";
-  } else {
-    return "outOfRange";
-  }
-};
-
-// 저장되어 있는 객체들의 id 조회, index추출하여 전역변수에 저장.
-function searchEventId(objId) {
-  var selectedItem = $("#calendar").data(id, objId);
-  console.log("hover로 선택된 item: ");
-  console.log(selectedItem);
-};
+//convert[]에 저장되는 순서: 연,월,일,시,분
+var startDay = [];
+var endDay = [];
+var startTime = [];
+var endTime = [];
 
 // 모달창 이벤트 생성버튼
 $('#makeEvent').click(function() {
   //modalform의 입력창을 class명으로 찾아 값을 가져오고, int값으로 변환하여 변수에 저장.
-  var inputSTime, inputSMin, inputETime, inputEMin;
   //Id셀렉터로 선택한 element내 요소를 find()로 조건선택하고
   // each()로 동일조건의 모든 element를 익명함수로 처리
   $('#inputTableForm').find('.timeForm').each(function() {
@@ -477,64 +432,69 @@ $('#makeEvent').click(function() {
     // case별로 값을 검사. 범위를 벗어나면 0을 입력.
     switch (name) {
       case "startTime":
-        if(checkRange(name,temp) == "time") { inputSTime = temp; break; }
-        else { inputSTime = 0; break; }
+        if(checkRange(name,temp) == "time") { startTime[0] = temp; break; }
+        else { startTime[0] = 0; break; }
       case "startMin":
-        if(checkRange(name,temp) == "min") { inputSMin = temp; break; }
-        else { inputSMin = 0; break; }
+        if(checkRange(name,temp) == "min") { startTime[1] = temp; break; }
+        else { startTime[1] = 0; break; }
       case "endTime":
-        if(checkRange(name,temp) == "time") { inputETime = temp; break; }
-        else { inputETime = 0; break; }
+        if(checkRange(name,temp) == "time") { endTime[0] = temp; break; }
+        else { endTime[0] = 0; break; }
       case "endMin":
-        if(checkRange(name,temp) == "min") { inputEMin = temp; break; }
-        else { inputEMin = 0; break; }
+        if(checkRange(name,temp) == "min") { endTime[1] = temp; break; }
+        else { endTime[1] = 0; break; }
     }
   });
 
-  var startConvert = [startY, startM, startD, inputSTime, inputSMin];
-  var endConvert = [endY, endM, endD, inputETime, inputEMin];
+  //수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
+  var newEventObj = createObj (startDay,endDay,startTime,endTime);
+  // console.log('새로 생성된 obj배열: ');
+  // console.log(newEventObj);
 
-  //title은 차후 userId로 변경할 것.
-  var id = userId+"_"+modifyTimeArray(startConvert,0,"",2) + modifyTimeArray(endConvert,0,"",2);
-  // modifyTimeArray(timeArray, index, sepChar, strLength)
-  console.log("id");
-  console.log(id);
+  //순차적으로 rendering
+  for(var i=0; i<newEventObj.length; i++) {
+    var nObj = newEventObj[i];
+    var id = nObj.id;
+    console.log("으어어어");
+    console.log(id);
+    $('#calendar').fullCalendar('renderEvent',
+      {
+        id : nObj.id,
+        title : nObj.title,
+        start : new Date(nObj.dayInfo[0],nObj.dayInfo[1],nObj.dayInfo[2],nObj.startTime[0],nObj.startTime[1]),
+        end : new Date(nObj.dayInfo[0],nObj.dayInfo[1],nObj.dayInfo[2],nObj.endTime[0],nObj.endTime[1]),
+        backgroundColor : nObj.backgroundColor,
+        borderColor: nObj.borderColor
+      },
+      true
+    );
+    $('#calendar').data(id, newEventObj[i]);
+    console.log('생성한 event: ');
+    console.log($('#calendar').data(id));
+    console.log('모든 event:');
+    console.log($('#calendar').data());
 
-  //title은 "시작시간 ~ 종료시간" 으로 자동생성 하도록 할 것.
-  var title = modifyTimeArray(startConvert,3,":") + " ~ " + modifyTimeArray(endConvert,3,":");
-
-  //동일 id 존재여부 확인하여 없는경우만 생성.
-  var newEventObj = {
-    id : id,
-    title : title,
-    start : startConvert,
-    end : endConvert,
-    backgroundColor : '#00a65a',
-    borderColor     : '#00a65a'
   }
-  console.log(newEventObj);
-  console.log(new Date(startY, startM, startD, inputSTime, inputSMin));
-
-  //rendering event 발생(실행?) --> 함수실행.
-  $('#calendar').fullCalendar('renderEvent',
-    {
-      id : id,
-      title : title,
-      start : new Date(startY, startM, startD, inputSTime, inputSMin),
-      end : new Date(endY, endM, endD, inputETime, inputEMin),
-      allDay : true,
-      backgroundColor : '#00a65a',
-      borderColor     : '#00a65a'
-    },
-    true
-  );
-
-  //data삽입.
-  $('#calendar').data(id, newEventObj);
-  console.log('생성한 event: ');
-  console.log($('#calendar').data(id));
-  console.log('모든 event:');
-  console.log($('#calendar').data());
+  // //rendering event 발생(실행?) --> 함수실행.
+  // $('#calendar').fullCalendar('renderEvent',
+  //   {
+  //     id : id,
+  //     title : title,
+  //     start : new Date(startConvert[0], startConvert[1], startConvert[2], startConvert[3], startConvert[4]),
+  //     end : new Date(endConvert[0], endConvert[1], endConvert[2], endConvert[3], endConvert[4]),
+  //     allDay : true,
+  //     backgroundColor : '#00a65a',
+  //     borderColor     : '#00a65a'
+  //   },
+  //   true
+  // );
+  //
+  // //data삽입.
+  // $('#calendar').data(id, newEventObj);
+  // console.log('생성한 event: ');
+  // console.log($('#calendar').data(id));
+  // console.log('모든 event:');
+  // console.log($('#calendar').data());
 });
 // ./ End Of Modal창 이벤트 생성버튼
 
@@ -575,14 +535,15 @@ $(function() {
     selectable: true,
     selectHelper: true,
     select: function(start, end) {
-      // 선택한 연도,월,일을 전역변수에 저장. moments.js의 function.
-      startY = start.get('year');
-      startM = start.get('month');
-      startD = start.get('date');
-      endY = end.get('year');
-      endM = end.get('month');
-      endD = end.get('date');
-
+      // 선택한 연도,월,일을 전역변수에 저장. get()--> moments.js의 function.
+      startDay[0] = start.get('year');
+      startDay[1] = start.get('month');
+      startDay[2] = start.get('date');
+      endDay[0] = end.get('year');
+      endDay[1] = end.get('month');
+      endDay[2] = end.get('date');
+      console.log("시작시간: "+ startDay);
+      console.log("종료: "+endDay);
       //modal popup.
       $('#selectPopup').modal('show');
     },
@@ -602,17 +563,13 @@ $(function() {
     },
 
     editable : true,
-    eventResizeStart : function(calEvent, jsEvent, ui, view) {
-      //시작시 동일 id의 객체를 객체관리정보에서 찾아 삭제.
-      $('#calendar').removeData(calEvent.id);
-    },
-    // eventResizeStop : function() {
-    //   //시작시 저장된 id를 바탕으로 객체관리정보에서 객체를 찾아 삭제.
+    // eventResizeStart : function(calEvent, jsEvent, ui, view) {
+    //   //시작시 동일 id의 객체를 객체관리정보에서 찾아 삭제.
+    //   $('#calendar').removeData(calEvent.id);
     // },
-    eventResize : function (calEvent, delta, revertFunc, jsEvent, ui view) {
-      //바뀐 객체정보 저장.
-
-    }
+    // eventResize : function (calEvent, delta, revertFunc, jsEvent, ui view) {
+    //   //바뀐 객체정보 저장.
+    // },
 
     // //select by // id
     // eventMouseover: function (calEvent, jsEvent, view) {
