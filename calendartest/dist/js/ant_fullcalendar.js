@@ -1,3 +1,13 @@
+// *Day 객체 속성 : year, month, date
+var startDay = new Object();
+var endDay = new Object();
+// *Time 객체 속성 : time, min
+var startTime = new Object();
+var endTime = new Object();
+
+//Time type 프로토타입 객체
+function TimeInfo
+
 //title에 이용할 시간정보 조합함수
   //timeArray: 조작할 시간정보 배열
   //index: 시간정보 배열에서 읽어올 시작 index
@@ -55,7 +65,7 @@ function createObj (startDay,endDay,startTime,endTime) {
   var dayPoint = startDay[2];
   console.log("dayPoint: "+dayPoint);
   for(var i=0; i<countDay;i++) {
-    var dayInfo = [];
+    var dayInfo = new Array();
     dayInfo = startDay;
     // console.log(i + "1.dayInfo 초기값:");
     // console.log(dayInfo);
