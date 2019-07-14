@@ -456,7 +456,8 @@ $('#makeEvent').click(function() {
   for(var i=0; i<newEventObj.length; i++) {
     //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
     if($('#calendar').data(newEventObj[i].id) != null) {
-      alreadyExistDatas[i] = newEventObj[i].dayInfo + ", " + newEventObj[i].title;
+      alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
+                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
     } else {
       //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
       var convertedEvent = convertToEventObj(newEventObj[i]);
@@ -538,6 +539,9 @@ $(function() {
       console.log($('#calendar').data());
     },
 
+    //drag and drop 활성화 필요.
+
+
     //update
     editable : true,
     // eventResizeStart: function(event, jsEvent, ui, view) {
@@ -552,32 +556,28 @@ $(function() {
     // },
     // eventResizeEnd: function(event, jsEvent, ui, view) {
     //확인 후, 종료날짜가 변경되면 캘린더에서 이벤트를 삭제하고 그날 자정으로 이벤트를
-
-    },
-    eventResize: function(event, delta, revertFunc) {
-      var selectedResizingEvent = $('#calendar').data(event.id);
-
-      var newStartYear = event.start.get('year');
-      var newStartMonth = event.start.get('month');
-      var newStartDate = event.start.get('date');
-
-      var newEndYear = event.end.get('year');
-      var newEndMonth = event.end.get('month');
-      var newEndDate = event.end.get('date');
-      var newEndTime = event.end.get('hour');
-      var newEndMin = event.end.get('minute');
-
-
-
-
-
-      alert(event.title + " end is now " + event.end.format());
-
-      if (!confirm("is this okay?")) {
-        revertFunc();
-      }
-
-    }
+    //
+    // },
+    // eventResize: function(event, delta, revertFunc) {
+    //   var selectedResizingEvent = $('#calendar').data(event.id);
+    //
+    //   var newStartYear = event.start.get('year');
+    //   var newStartMonth = event.start.get('month');
+    //   var newStartDate = event.start.get('date');
+    //
+    //   var newEndYear = event.end.get('year');
+    //   var newEndMonth = event.end.get('month');
+    //   var newEndDate = event.end.get('date');
+    //   var newEndTime = event.end.get('hour');
+    //   var newEndMin = event.end.get('minute');
+    //
+    //   alert(event.title + " end is now " + event.end.format());
+    //
+    //   if (!confirm("is this okay?")) {
+    //     revertFunc();
+    //   }
+    //
+    // }
   });
   // ./ End of fullCalendar 초기화 -------------------------------------
 });
