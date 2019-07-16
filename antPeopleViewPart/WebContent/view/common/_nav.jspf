@@ -1,8 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <aside class="main-sidebar">
-	<!-- nav 테스트 값. 차후 로그인 유형에 따라 값 수신필요. -->
-	<c:set var="navRecall" value="admin" />
 	
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
@@ -90,7 +88,7 @@
       </ul>
       
 <!-- admin menu -->
-      <c:if test="${navRecall == 'admin'}">
+      <c:if test="${checkLogin == 'admin'}">
       	<ul class="sidebar-menu" data-widget="tree">
 	        <li class="header">Admin Menu</li>
 	        <li class="active treeview">
@@ -173,7 +171,7 @@
       </c:if>
       
 <!-- employee menu -->
-      <c:if test="${navRecall == 'admin'}">
+      <c:if test="${checkLogin == 'employee'}">
       	<ul class="sidebar-menu" data-widget="tree">
 	        <li class="header">Employee Menu</li>
 	        <li class="active treeview">

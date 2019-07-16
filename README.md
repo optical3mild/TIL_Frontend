@@ -1,4 +1,4 @@
-# TIL_Frontend
+﻿# TIL_Frontend
 
 
 ### 1. ajaxtest : Dynamic Web Project + Ajax 게시판 연동연습 (7.2 ~ 7.6)
@@ -12,3 +12,4 @@
 
 ### 3. antPeopleViewPart : antPeopleProject에 사용할 view 개발관련 (7.14~)
 > ###### 7.14 : 초기 page레이아웃 업데이트 (index, calendar, top, nav, login) 
+> ###### 7.16 : antpeople project로 view 작업 이관. (현재 기준으로 view 동기화 필요.)
