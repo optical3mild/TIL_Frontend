@@ -142,8 +142,290 @@ Spring Legacy project --> Spring MVC project
   2) General - Editors - Text Editors -Spelling -Encoding
   
  -html/css/jsp 인코딩 : UTF-8
+  1)Web-CSS Files, Web-HTML Files, Web-JSP Files
+  
  -Jsp 페이지의 템플릿 변경
- 
+  Window - preferences - web - jsp files - editor - templates - new JSP File(html) 선택 후 - edit
+  **강의 내에서 <%@ include file = "../include/header.jsp"%>, jquery script 항목 삭제
+  
+  <!DOCTYPE html> : html5
+  
+ -Get방식의 한글데이터 처리 (tomcat 구버전 :  버전어디서??? tomcat9.0에서는 필요없음.)
+  1) server.xml 편집
+  URIEncoding="utf8" 속성 2군데 추가
+  
+  <Connector connectionTimeout="20000" port"8080" protocol="HTTP/1.1" redirectPort="8443"
+   (이부분--> +) URIEncoding="utf-8" />
+   
+  <Connector port"8009" protocol="AJP/1.3" redirectPort="8443"
+   (이부분--> +) URIEncoding="utf-8" />
+
+    
+3. sample project 다운로드 받은 후 test.
+  http://cafe.daum.net/newlifesoft/TkSY/26
+  
+  -import -> build 자동실행됨 (Maven, 열려있는 프로젝트가 모두 빌드됨)
+   **관련없는 프로젝트는 우클릭하여 close project로 닫아놓으면 build되지 않는다.
+  
+  -build이후 경고가 계속 표시되는 경우
+  --> java build path항목 확인 : jre, tomcat
+  --> 메이븐 디렉토리 & problems창 확인 : 사용자/.m2 디렉토리 확인하여 오류부분 폴더 삭제
+  		-->새로 자동으로 받아 자동으로 빌드됨.
+  
+  ** Dynamic web project에서는 lib를 webcontent/web-inf/lib에 jar파일을 복사해서 넣었음.
+   spring에서는 maven에서 설정을 읽어 관리.(pom.xml의 dependency)
+   
+  ** pom.xml에서 소스를 확인하여
+  오류가 잘 고쳐지지 않는경우, properties항목의 spring등의 버전을 수정하여 호환성을 맞춰본다.
+  
+  ** 프로젝트 속성 -> project facets 확인 : java version 확인
+  
+  ** 문제가 지속되는 경우, 스프링sts를 끄고 .m2디렉토리 통채로 삭제
+  
+  ** or disable maven nature로 maven 설정을 클리어 --> convert to maven project로 다시 변환, 빌드.
+  
+  -프로젝트 실행
+  : 프로젝트 폴더 우클릭 --> (maven build, build시 관련없는 프로젝트는 닫아 build실행 방지) --> run on server
+   (or project 선택 후 ctrl + f11 -> run as 창에서 선택)
+  
+  
+4. spring01 프로젝트 생성 :
+  **Spring Starter Project : spring boot - 설정 최소화 버전
+  
+  -Spring Legacy Project => Spring MVC project
+   1)패키지 이름: www.naver.com --> com.naver.www 
+    -마침표가 두번 들어간 세단어로 된 패키지 이름필요.
+     ex)com.example.spring01
+     
+   2)프로젝트 구조
+    -pom.xml : 라이브러리 정보 기술되어 있음.
+     -java version, spring sts version 등
+  
+  -메이븐 라이브러리 : 사용자/.m2 디렉토리 확인
+  
+  -jdk 버전수정 : Project Facets, Java complier 버전확인.
+  
+  -pom.xml 수정 : java version, spring sts 버전 수정.
+  <java-version>1.8</java-version>
+  <org.springframework-version>5.0.3RELEASE</org.springframework-version>
+  
+  **2018.1월 spring 최신버전은 5.0.3, 에러 발생 시 하위버전으로 설정
+   JDK 8+ for spring framework 5.x : spring 5.x는 java 8 이상이 되어야 함.
+   JDK 6+ for spring framework 4.x
+   JDK 5+ for spring framework 3.x
+  
+  -강의에서는 설정을 패스하고 sample 프로젝트에서 설정파일을 복사.
+  	1>pom.xml
+  	  전부 복사하지 않고(project명이나 다른 프로젝트 관련 내용이 있으므로)
+  	  <properties> 이하 복사.
+  	  --> pom.xml이 수정되면 build과정이 다시 일어남.
+  	
+  	2>resource 디렉토리(src/main/resources)
+  	  -mappers : ** mapper.xml
+  	  -META-INF : 강의상에서는 빈폴더...
+  	  -log4j.xml
+  	  -log4jdbc.log4j.properties
+  	  -logback.xml
+  	  -mybaties-config.xml
+  	
+  	3>WEB-INF 디렉토리(src/main/webapp/WEB-INF)의 설정파일
+  	  -spring : root-context.xml
+  	  -spring/appServlet : servlet-context.xml
+  	  -web.xml
+  	  
+  	  
+  	**설정파일 종합 ----------------------------
+  	  -주요 설정파일
+		    pom.xml
+		  	**mapper.xml
+		  	mybaties-config.xml
+		  	root-context.xml
+		  	servlet-context.xml
+		  	web.xml
+	  -기타
+			log4j.xml
+			log4jdbc.log4j.properties
+			logback.xml
+	--------------------------------------------	  	  
+  	    
+  -tomcat 9.0으로 변경하여 실행
+  -java build path에서 tomcat추가.
+  
+  -home.jsp 수정 (한글이 깨지는 졍우 : 페이지 지시어 수정 및 meta tag추가)
+  > <%@ page language="java" contentType="text/html; charset=UTF-8"
+  	  pageEncoding="UTF-8"%>
+    <html>
+    <head>
+  > <meta http=eqiv="Content-Type" content="text/html; charset=UTF-8">
+  
+
+5. home.jsp의 실행과정
+  **jsp file로 바로 실행 불가 --> WEB-INF는 외부접근이 막혀있음 (404에러 발생)
+  **내부의 사진관련이나 가져올 자료 폴더는 servlet-context.xml의 <resources>항목을 추가해 주어야 함
+  **spring에서는 보안을 위해 반드시 controller를 거치도록 권장.
+  
+  1) web.xml
+   : 웹 프로젝트의 배치 기술서(deploy descriptor) = 웹 프로젝트의 환경설정 파일
+  	- 스프링의 환경설정 파일 로딩 : context파일을 읽어오라는 명령
+  	  <context-param>
+  	    <param-name>contextConfigLocaiton</param-name>
+  	    <param-value>/WEB-INF/spring/root-context.xml</param-value>
+  	  </context-param>
+  	
+  	- ??  
+  	  <listener> :????
+  	  	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  	  </listener>
+  	  
+  	- 서블릿의 환경설정 파일 로딩
+  	  : server가 startup(client에서 웹페이지를 요청하면) mapping에 정의된 url pattern을 감지하고,
+  	  mapping에 설정된 servlet name과 일치하는 <servlet>하의 servlet name을 찾아 servlet class를 실행
+  	  (여기서는 spring에 내장된 DispathcerServelt. Dynamic Web project처럼 직접 작성할 수도 있다.
+  	  현재 작성된 설정파일의 경우는 어떤 요청을 하던 DispatcherServlet에서 요청을 가로채어 실행한다.
+  	  DispathcerServlet안에는 servlet-context.xml을 참조하는 로직이 포함되어 있어 servlet-context.xml가
+  	  실행된다.).
+  	  실행 시 파라미터는 init param으로 설정된 값을 주입받아 실행한다.
+  	
+  	  <servlet>
+  	    <servlet-name>appServlet</servlet-name>
+  	    <servlet-class>org.springframework.web.servlet.DispathcerServlet</servlet-class>
+  	    <init-param>
+  	      <param-name>contextConfigLocation</param-name>
+  	      <param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+  	    </inti-param>
+  	    <load-on-startup>1</load-on-startup>
+  	  </servlet>
+  	  
+  	- ???
+  	  <servlet-mapping>
+  	    <servlet-name>appServlet</servlet-name>
+  	    <url-pattern>/</url-pattern>
+  	  <servlet-mapping>
+  	
+  	- 한글 처리를 위한 인코딩 필터
+     : Dynamic Web Project에서 클래스로 만들어 쓰던 것을 설정으로 처리.
+  	  filter-mapping에 정의된 encoding항목의 url-pattern에 해당되는 url-pattern("/*": 모든 url)
+      요청이 들어오면 mapping의 filter name과 일치하는 filter항목 아래의 filter name을 찾아가
+      그 아래에 설정되어있는 filter class를 찾아가 실행(이 경우는 spring에 내장되어 있는 필터임)
+      어떤 인코딩 방식을 선택할지는 init param에 설정된 파라미터를 주입받아 실행.
+  	  
+  	  <filter>
+  	    <filter-name>encoding</filter-name>
+  	    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  	    <init-param>
+  	      <param-name>encoding</param-name>
+  	      <param-value>UTF-8</param-value>
+  	    </init-param>
+  	  </filter>
+  	  <filter-mapping>
+  	    <filter-name>encoding</filter-name>
+  	    <url-pattern>/*</url-pattern>
+  	  </filter-mapping>
+  	 
+  	</web-app>   
+  
+  2) /WEB-INF/spring/root-context.xml : 스프링의 환경설정 파일 (자바관련)
+    - servlet이 아닌 속성들 설정 : db연결, 객체주입...
+  
+  3) 스프링에 내장된 DispacherServlet을 디폴트 서블릿으로 설정
+    - 모든 서블릿 요청은 DispathcerServlet에서 처리됨.
+     : DispathcerServlet에는 servlet-context.xml을 참조하는 로직이 내장되어 있어
+     /WEB-INF/spring/appServlet/servlet-context.xml 참조, 실행한다.
+     
+      1> xml파일안에 정의된 객체들을 로딩함
+     	- 어노테이션
+     	  <annotation-driven>
+     	
+     	- 리소스 관련
+     	  <resources mapping="/resources/**" location="/resources/" />
+     	
+     	- viewResolver
+     	  : view해석기(???). 접두사, 접미사 정의
+     	  <beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+     	    <beans:property name="prefix" value="/WEB-INF/views/" />
+     	    <beans:property name="suffix" value=".jsp" />
+     	  </beans:bean>
+     	  
+     	- component-scan
+     	 : context:component-scan의 base-package에 정의된 패키지를 찾아 작성되어 있는 클래스들을
+     	  읽어들이고 클래스에 작성되어 있는 어노테이션을 읽고 판별해 자동으로 등록한다.
+     	  (ex> @Controller : 작성되어 있는 현재 클래스를 스프링에서 관리하는 컨트롤러로 자동 등록)
+     	  base-package에 있는 모든 클래스들을 검사하여 메모리에 올림.
+     	  <context:component-scan base-package="com.example.spring01.*" />
+     	  
+          **어노테이션 방식 외-------------------------------
+           : 모든 컨트롤러, DAO, 클래스들을 servlet-context.xml에 bean으로 일일이 등록.
+             서버가 올라오면서 태그를 해석, 인스턴스들을 메모리에 올림.
+            <beans:bean id ="homeController" class="com.example.spring01.HomeController">
+            </beans:bean>
+          --------------------------------------------------------
+     	</beans:beans>
+     	
+      2> HomeController.java 로딩됨
+       @Controller : 현재 클래스를 컨트롤러로 등록
+       
+       @RequestMapping(value="/", method=RequestMethod.GET)
+        - value = "/" : root를 의미. 
+          site: http://localhost/spring01/
+          ip주소: http://localhost(포트번호 생략)
+          contextpath: spring01 (com.example.spring01의 경우)
+          주소: / --> root url. 위 @RequestMapping의 value값. GET(method에 정의)방식.
+       --> host방식으로는 호출이 안되는 url이 됨.
+       
+       @RequestMapping(value="/", method=RequestMethod.GET)
+       public String home(Locale locale, Model model) {
+        ..........
+        model.addAttribute("serverTime",formattedDate);
+        return "home";
+       }
+        : - home 메소드가 매핑됨. 
+          - return "home"; 
+            --> home.jsp로 포워딩하라는 의미 = servlet-context.xml에 정의되어 있는
+                설정을 읽어 경로를 완성, 완성된 경로로 포워딩.
+             (servlet-context.xml에서 정의된 <beans:bean>항목 하, <beans:property>로
+             prefix와 serfix가 정의되어 있어 리턴값인 home앞뒤에 붙여 경로가 완성되고
+             완성된 경로로 포워딩이 실행된다.)
+             
+          - model.addAttribute("serverTime",formattedDate); (*serverTime : 변수명, formattedDate: 값) 
+            : servlet에서 request.setAttribute(변수명, 값)과 동일한 기능.
+             servlet에서 request라고 부르던 것을 spring에서는 model이라고 한다.??? 
+             (*spring에서도 request는 있음.)
+            
+       3> home.jsp
+        : EL로 model.addAttribute("serverTime",formattedDate)로 넘긴 값을 받아 출력한다.
+         --> ${serverTime} : 컨트롤에서 넘긴 변수명과 변수명을 동일하게...
+        
+        
+  ***5번 home.jsp가 실행되는 과정 요약------------------------------
+     서버 startup
+     --> web.xml에 선언되어 있는 대로 모든 서블릿요청을 DispathcerServlet으로 보냄
+     --> DispatcherServlet에서 servlet-context.xml파일을 읽어들임 
+     --> <context:component-scan base-package=" ~~~~~~ " />로 선언된 클래스들을 읽어 메모리에 로드
+     	= 컨트롤러 등록, url mapping
+     
+     사용자 주소요청 --> mapping된 내용과 url을 대조하여 mapping되어 있는 내용을 실행.
+     (**위 예제내용의 경우, HomeController.java의 Home()이 실행되도록 @RequestMapping으로 mapping되어 있음)
+     --> Home()에서는 정의된 코드를 실행하고 home을 리턴(포워딩)
+     --> servlet-context.xml을 참조하여 접두, 접미를 붙여 경로를 완성하고 addAttribute로 보낼 데이터와
+       함께 완성된 경로페이지로 포워딩 한다.
+      
+
+<동영상 강의 3강>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
