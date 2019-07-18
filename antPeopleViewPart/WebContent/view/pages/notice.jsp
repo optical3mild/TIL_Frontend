@@ -87,7 +87,7 @@
                 <tbody>
                   <tr>
                   	<td>001</td>
-                  	<td><a herf="articledetail.jsp">testpage</a></td>
+                  	<td><a href="articledetail.jsp">testpage</a></td>
                   	<td>2019.07.20</td>
                   	<td>으엌이</td>
                   </tr>
@@ -97,7 +97,7 @@
 					<tr>
 					  <td style="text-align: center;">${notice.noticeNumber}</td>
 			<%--Title 클릭 시 해당 글 링크로 넘어감 서블릿 요청필요.--%>
-					  <td style="text-align: center;"><a href="TransProc?action=detailList&iCode=${notice.noticeNumber}">${notice.title}</td>
+					  <td style="text-align: center;"><a href="TransProc?action=detailList&iCode=${notice.noticeNumber}">${notice.title}</a></td>
 					  <td style="text-align: center;"><fmt:formatDate value="${notice.noticeDate}" pattern="yy-MM-dd"/></td>
 					  <%-- 날짜를 String으로 받아오는 경우 parseDate --> formatDate로 두번실행.
 					  <td style="text-align: center;">

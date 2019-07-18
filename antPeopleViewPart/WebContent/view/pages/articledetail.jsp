@@ -65,6 +65,10 @@
             <div class="box-body">
               <form role="form">
                 <!-- text input -->
+                <div class="form-group">
+                  <span>작성자:&nbsp;으엌이</span>
+                  <span>작성일:&nbsp;2019.07.20</span>
+                </div>
                 
                 <div class="form-group">
                   <label>Title</label>
