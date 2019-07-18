@@ -103,7 +103,8 @@ pom.xml : Maven 설정파일
  					private Member() {
  					}	
  				}
- 				--> 생성자가 private로 바뀌면 MemberUse 클래스도 수정해야 함.
+ 				--> 생성자가 private로 바뀌면(Member클래스가 수정되면)
+ 				    MemberUse 클래스도 수정해야 함.
  			
  			-느슨한 결합
  				class MemberUse() {
@@ -266,7 +267,7 @@ Spring Legacy project --> Spring MVC project
   
   1) web.xml
    : 웹 프로젝트의 배치 기술서(deploy descriptor) = 웹 프로젝트의 환경설정 파일
-  	- 스프링의 환경설정 파일 로딩 : context파일을 읽어오라는 명령
+  	- 스프링의 환경설정 파일 로딩 : context파일을 읽어오라는 명령. 여기서는 root-context.xml을 읽어온다.
   	  <context-param>
   	    <param-name>contextConfigLocaiton</param-name>
   	    <param-value>/WEB-INF/spring/root-context.xml</param-value>
@@ -276,6 +277,7 @@ Spring Legacy project --> Spring MVC project
   	  <listener> :????
   	  	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   	  </listener>
+  	  
   	  
   	- 서블릿의 환경설정 파일 로딩
   	  : server가 startup(client에서 웹페이지를 요청하면) mapping에 정의된 url pattern을 감지하고,
@@ -296,11 +298,15 @@ Spring Legacy project --> Spring MVC project
   	    <load-on-startup>1</load-on-startup>
   	  </servlet>
   	  
-  	- ???
+  	- servlet-mapping
+  	  : 서블릿과 유저가 요청하는 url패턴이 매핑되어 있다. 유저의 url요청이 들어오면 url패턴이 일치하는
+  	  servlet-mapping항목을 찾아 항목의 servlet-name과 일치하는 servlet 태그 하의 항목을 찾아간다.
+  	
   	  <servlet-mapping>
   	    <servlet-name>appServlet</servlet-name>
   	    <url-pattern>/</url-pattern>
   	  <servlet-mapping>
+  	
   	
   	- 한글 처리를 위한 인코딩 필터
      : Dynamic Web Project에서 클래스로 만들어 쓰던 것을 설정으로 처리.
@@ -347,8 +353,9 @@ Spring Legacy project --> Spring MVC project
      	  </beans:bean>
      	  
      	- component-scan
-     	 : context:component-scan의 base-package에 정의된 패키지를 찾아 작성되어 있는 클래스들을
-     	  읽어들이고 클래스에 작성되어 있는 어노테이션을 읽고 판별해 자동으로 등록한다.
+     	 : context:component-scan의 base-package(= 스프링에서 관리하는 bean의 기본 디렉토리)에
+     	  정의된 패키지를 찾아 작성되어 있는 클래스들을 읽어들이고 클래스에 작성되어 있는
+     	  어노테이션을 읽고 판별해 자동으로 등록한다.
      	  (ex> @Controller : 작성되어 있는 현재 클래스를 스프링에서 관리하는 컨트롤러로 자동 등록)
      	  base-package에 있는 모든 클래스들을 검사하여 메모리에 올림.
      	  <context:component-scan base-package="com.example.spring01.*" />
@@ -411,20 +418,174 @@ Spring Legacy project --> Spring MVC project
       
 
 <동영상 강의 3강>
+1. web.xml 복습
+  - url pattern
+    - / : DefaultServlet(jsp에서 사용. **tomcat 내장.) --> DispatcherServlet(Spring에서 새로 만든 클래스)
+ 		(==> Spring에서는 tomcat에 내장된 DefaultServlet대신 Spring의 DispatcherServlet으로 대체하여 사용.)
 
+    - /* : 모든요청(servlet + jsp) but, spring에서는 servlet만 check하므로 jsp는 로드되지 않는다.
+    - *.do : 확장자가 .do인 요청
+    
+    example) 게시판의 1번 글 주소 
+   			restful한 url : http://localhost/spring01/board/view/1
+    		기존 url요청  : http://localhost/spring01/board/view.do?idx=1
+    
+  - 모든 servlet요청은 DispatcherServlet이 처리.
+    Dispatcher servlet은 param-value에 선언된 servlet-context.xml을 참조.
+    
+  --> url요청 --> url패턴과 mapping된 servlet name과 일치하는 servlet항목을 찾는다
+  --> 해당 항목에 선언되어 있는 DispatcherServlet을 실행하고, 
+      이때 parameter(<init-param>)로 선언되어 있는 servlet-context.xml을 참조한다.
+  
+  - servlet-context.xml
+    - prefix, suffix 선언
+    - context:component-scan태그의 base-package속성 : 스프링에서 관리하는 bean의 기본 디렉토리
+      **bean : 자바 클래스 인스턴스
+      **package explorer에서 아이콘에 파란색's'가 있는 클래스는 스프링에서 등록한 bean.
+    - 정의된 객체들을 로딩함(basepackage로 등록된 package내 클래스). = bean을 자동으로 검색하여 등록.
+    
+    - homeController.java 로딩됨.
+      - icon에 'S' : 스프링에 등록되어 있음.
+      - @Controller : 서버가 올라갈 때 homeController를 메모리에 자동으로 올림.
+        - @RequestMapping
+          - value = "/" 
+            : url요청으로 /이 들어오면 해당 value값을 가지는 annotation이 붙어있는 메소드가 호출됨.
+            
+            - 메소드의 매개변수 model와 addAttribute() = servlet의 request와 setAttribute()
+              : 포워딩하면서 저장된 매개변수 명과 값을 넘겨줌.
+              
+            - return home; 
+              : servlet-context에 정의되어 있는 prefix와 suffix를 붙여 경로를 완성하고,
+                완성된 경로로 포워딩.
 
+  **설정파일 : 두개로 나누지 않고 하나로 합쳐 작성하여도 무방.
+    **DBCP, JDBC : 자바 웹 어플리케이션에서 DB접속과 관련된 라이브러리.
+    **DBCP : DataBase Connection Pool. DB와 커넥션을 맺고 있는 객체를 관리하는 라이브러리.
+    - root-context.xml : 서블릿 이외의 설정(DBCP)
+    - servlet-context.xml : 서블릿에 관련된 설정.
+      - context:component-scan base-package가 없으면 controller인식 불가. ==> 아이콘의 표시도 사라짐.
+    
+** tomcat에 내장된 서블릿------------------------------------------------------------------
+  - Default Servlet : servlet 클래스 매핑
+  - JspServlet : *.jsp 페이지 매핑
+  - tomcat의 web.xml에 설정이 있음 (tomcat folder/conf/web.xml)
+    
+    <servlet>
+      <servlet-name>default</servlet-name>
+      <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+      <init-param>
+        <param-name>debug</param-name>
+        <param-value>0</param-value>
+      </init-param>
+        <param-name>listings</param-name>
+        <param-value>false</param-value>
+      </init-param>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    ...
+    
+    - mapping의 pattern이 /인 경우 default-servlet으로 연결.
+    <servlet-mapping>
+      <servlet-name>default</servlet-name>
+      <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    
+    - mapping의 pattern이 .jsp인 경우 jsp-servlet으로 연결.
+    <servlet-mapping>
+      <servlet-name>jsp</servlet-name>
+      <url-pattern>*.jsp</url-pattern>
+      <url-pattern>*.jspx</url-pattern>
+    </servlet-mapping>
+    
+    ...
+    
+    <servlet>
+      <servlet-name>jsp</servlet-name>
+      <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+      <init-param>
+        <param-name>fork</param-name>
+        <param-value>false</param-value>
+      </init-param>
+        <param-name>xpoweredBy</param-name>
+        <param-value>false</param-value>
+      </init-param>
+      <load-on-startup>3</load-on-startup>
+    </servlet>
+    
+=> tomcat에 내장된 jsp서블릿을 무시하고 DispatcherServlet으로 연결
+  : project의 web.xml에서 url pattern을 /*로 변경(모든 요청을 DispatcherServlet으로 처리).  
+    ==>  실행 시 처리불가로 페이지를 찾을 수 없음(404).
+-----------------------------------------------------------------------------------------
 
+  - Spring, jsp
+    - jsp : 논리적, 코딩위주
+    - spring : 함축적, 세팅위주
+    
+  - bean을 자동으로 검색하여 등록 : <context:component-scan base-package="기준 패키지 경로" />  
+  - bean annotation
+    @Controller
+    @Repository : DAO(데이터베이스 관련작업) bean
+    @Service : 서비스(비즈니스 관련 로직) bean
+      - Service
+       : 트랜잭션의 경우 하나의 서비스를 여러 작업단계로 나눔. 합쳐져서 하나의 트랜잭션이 됨.
+       하나의 서비스가 여러개의 메소드로 처리될 수 있도록 사용됨.
+    @Inject : 의존관계 주입
+    
+    ** 구조
+      - 기존: Controller => Model => View
+      - Spring : Controller => Service => Model => View
+    
+2.디렉토리 구조 복습 (1강내용)
 
+3.스프링의 주요 특징 복습 (1강내용)
 
+	1) 강한결합 -------------------------------
+	  1> ---------------------------------------
+	    public class Member {
+			String userid;
+			String passwd;
+			String name;
+			public Member() {
+			}	
+		}
+	    
+	    //MemberUse에서 생성자 생성 시 Member의 객체를 생성 ( == Member클래스 사용)
+		class MemberUse {
+			public MemberUse() {
+				Member m = new Member();
+			}	
+		}
+	  --------------------------------------------
+	  2> -----------------------------------------
+	    public class Member {
+			String userid;
+			String passwd;
+			String name;
+			private Member() {}  --> 생성자가 private로 변경됨. 
+			                       (*생성자가 private인 경우는 singleton에서 많이 사용.)
+				
+		}
+	  
+		
+		--> 생성자가 private로 바뀌면(Member클래스가 수정되면) MemberUse 클래스도 수정해야 함.
+	--------------------------------------------------------
+	
+	- 느슨한 결합
+		class MemberUse() {
+			public MemberUse(Member m) {
+			}
+		}	
+		public class Member {
+			String userid;
+			String passwd;
+			String name;
+			private Member(){};
+		} 				
+		--> 매개변수로 Member 객체를 받음으로써 생성자가 private로 바뀌어도 영향을 받지 않음.
+		--> Member 객체는 스프링에서 의존성 주입을 통해 생성하여 넣어주고 관리한다.(IoC, DI)
 
-
-
-
-
-
-
-
-
+동영상 3강 32분...
 
 
 
