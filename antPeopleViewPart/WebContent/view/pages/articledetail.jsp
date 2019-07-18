@@ -23,15 +23,7 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
   
-  <!-- DataTables -->
-  <link rel="stylesheet" href="setfiles/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   
-  <!-- 적용여부 확인. -->
-  <style>
-	  td, th {
-	  	text-overflow: ellipsis;
-	  }
-  </style>
   
   <%@ include file= "../common/header.jsp" %>
 </head>
@@ -48,7 +40,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Common - Notice(공지사항)
+        Common - Notice - ArticleDetail(글 상세보기)
         <small>Control panel</small>
       </h1>
       <ol class="breadcrumb">
@@ -57,65 +49,55 @@
       </ol>
     </section>
 <!-- ------------------------------------------------- -->    
-   <!-- Main content -->
+    <!-- Main content -->
     <section class="content">
       <div class="row">
-        <div class="col-xs-12">
+        
+        <!-- right column -->
+        <div class="col-md-12">
+          
+          <!-- general form elements disabled -->
           <div class="box box-info">
-            <div class="box-header">
-              <h3 class="box-title">Data Table With Full Features</h3>
-              <button type="button" class="btn btn-info pull-right">글쓰기</button>
-              <hr style="margin-bottom: 0 ; border: 0.5px solid lightgrey">
+            <div class="box-header with-border">
+              <h3 class="box-title">General Elements</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="example1" class="table table-bordered table-striped">
-				<colgroup>
-				  <col style="width: 15%">
-				  <col style="width: 55%">
-				  <col style="width: 15%">
-				  <col style="width: 15%">
-				</colgroup>
-                <thead>
-                  <tr>
-                    <th>글번호</th>
-                    <th>제목</th>
-                    <th>작성날짜</th>
-                    <th>작성자</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                  	<td>001</td>
-                  	<td><a herf="articledetail.jsp">testpage</a></td>
-                  	<td>2019.07.20</td>
-                  	<td>으엌이</td>
-                  </tr>
+              <form role="form">
+                <!-- text input -->
                 
-               	  <c:set var="noticeList" value="${requestScope.noticeList}"/>
-				  <c:forEach var="notice" items="${noticeList}">
-					<tr>
-					  <td style="text-align: center;">${notice.noticeNumber}</td>
-			<%--Title 클릭 시 해당 글 링크로 넘어감 서블릿 요청필요.--%>
-					  <td style="text-align: center;"><a href="TransProc?action=detailList&iCode=${notice.noticeNumber}">${notice.title}</td>
-					  <td style="text-align: center;"><fmt:formatDate value="${notice.noticeDate}" pattern="yy-MM-dd"/></td>
-					  <%-- 날짜를 String으로 받아오는 경우 parseDate --> formatDate로 두번실행.
-					  <td style="text-align: center;">
-					    <fmt:parseDate value="${notice.noticeDate}" var="dateFmt" pattern="yyyyMMdd"/>
-					    <fmt:formatDate value="${dateFmt}" pattern="yy-MM-dd"/>
-					  </td> --%>
-					  <td style="text-align: center;">${notice.userId}</td>
-					</tr>
-				  </c:forEach>
-				  
-                </tbody>
-              </table>
+                <div class="form-group">
+                  <label>Title</label>
+                  <input type="text" class="form-control" placeholder="Enter ..." disabled>
+                </div>
+
+                <!-- textarea -->
+                <div class="form-group">
+                  <label>The Body</label>
+                  <textarea class="form-control" rows="3" placeholder="Enter ..." disabled></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>Category</label>
+                  <select class="form-control" disabled>
+                    <option>Notice</option>
+                    <option>Board</option>
+                  </select>
+                </div>
+
+                
+              </form>
             </div>
             <!-- /.box-body -->
+              <div class="box-footer">
+                <button type="button" class="btn btn-default">Back to List</button>
+                <button type="button" class="btn btn-info pull-right">수정</button>
+              </div>
+              <!-- /.box-footer -->
           </div>
           <!-- /.box -->
         </div>
-        <!-- /.col -->
+        <!--/.col (right) -->
       </div>
       <!-- /.row -->
     </section>
@@ -138,17 +120,7 @@
 <!-- AdminLTE App : navbar 관련-->
 <script src="setfiles/dist/js/adminlte.min.js"></script>
 
-<!-- DataTables -->
-	<!-- 상하단 검색기능, 페이지 넘김기능 -->
-<script src="setfiles/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-	<!-- table검색창등 미세설정.. -->
-<script src="setfiles/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
-<script>
-  $(function () {
-    $('#example1').DataTable()
-  })
-</script>
 
 </body>
 </html>
