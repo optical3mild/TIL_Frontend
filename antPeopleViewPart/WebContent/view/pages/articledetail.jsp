@@ -72,32 +72,37 @@
                 
                 <div class="form-group">
                   <label>Title</label>
-                  <input type="text" class="form-control" placeholder="Enter ..." disabled>
+                  <input type="text" class="form-control" disabled value="${title}" style="background-color: white;">
                 </div>
 
                 <!-- textarea -->
                 <div class="form-group">
                   <label>The Body</label>
-                  <textarea class="form-control" rows="3" placeholder="Enter ..." disabled></textarea>
+                  <textarea class="form-control" rows="3" disabled style="background-color: white;">
+                    ${theBody}
+                  </textarea>
                 </div>
 
                 <div class="form-group">
+              <!-- test값 -->
+                <c:set var="categoryOption" value="Board" />
+              
                   <label>Category</label>
-                  <select class="form-control" disabled>
+                  <select class="form-control selection" disabled>
                     <option>Notice</option>
                     <option>Board</option>
                   </select>
                 </div>
-
-                
+                <div class="box-footer" style="padding-left: 0; padding-right:0;">
+                  <button type="button" class="btn btn-default"><a href="#">목록으로</a></button>
+                  <button type="button" class="btn btn-info pull-right" style="margin: 0 0 0 20px">
+                    <a href="writearticle.jsp">수정</a>
+                  </button>
+                  <button type="button" class="btn btn-info pull-right">삭제</button>
+                </div>
               </form>
             </div>
             <!-- /.box-body -->
-              <div class="box-footer">
-                <button type="button" class="btn btn-default">Back to List</button>
-                <button type="button" class="btn btn-info pull-right">수정</button>
-              </div>
-              <!-- /.box-footer -->
           </div>
           <!-- /.box -->
         </div>
@@ -124,7 +129,20 @@
 <!-- AdminLTE App : navbar 관련-->
 <script src="setfiles/dist/js/adminlte.min.js"></script>
 
+<script>
+//오류발생.. 주석내에 el이나 tag형식 사용하지 말것..
+$(function() {
+	//jstl의 변수를 javascript로 바로 사용 불가. ' c:out value="jstl변수명" '을 사용할 것.
+	//바로 el로 받을경우 not defined(?) 같은 오류로 인식되지 않는다.
+	var articleCategory = '<c:out value="${categoryOption}" />';
+	console.log(articleCategory);
+	$('.selection option').val(articleCategory).attr('selected', true);
+	
+	//:contains() --> ()안에 변수 삽입불가. 변수명을 문자열로 인식함.
+	//$('.selection option:contains(Board)').attr('selected', true);
+});
 
+</script>
 
 </body>
 </html>

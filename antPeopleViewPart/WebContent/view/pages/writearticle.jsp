@@ -40,7 +40,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Common - Notice - ArticleDetail(글 상세보기)
+        Common - Notice - Write Article(글 쓰기)
         <small>Control panel</small>
       </h1>
       <ol class="breadcrumb">
@@ -63,37 +63,35 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <form role="form">
+              <form role="form" action>
                 <!-- text input -->
                 
                 <div class="form-group">
                   <label>Title</label>
-                  <input type="text" class="form-control" placeholder="Enter ...">
+                  <input type="text" class="form-control" name="title">
                 </div>
 
                 <!-- textarea -->
                 <div class="form-group">
                   <label>The Body</label>
-                  <textarea class="form-control" rows="3" placeholder="Enter ..." ></textarea>
+                  <textarea class="form-control" rows="3" name="theBody"></textarea>
                 </div>
 
                 <div class="form-group">
                   <label>Category</label>
-                  <select class="form-control">
-                    <option>Notice</option>
-                    <option>Board</option>
+                  <select class="form-control" name="category">
+                    <option value="notice">Notice</option>
+                    <option value="board">Board</option>
                   </select>
                 </div>
-
-                
+				<div class="box-footer" style="padding-left: 0; padding-right:0;">
+                  <button type="button" class="btn btn-default"><a href="#">목록으로</a></button>
+                  <button type="submit" class="btn btn-info pull-right">작성완료</button>
+                </div>
+                <!-- /.box-footer -->
               </form>
             </div>
             <!-- /.box-body -->
-              <div class="box-footer">
-                <button type="button" class="btn btn-default">Back to List</button>
-                <button type="submit" class="btn btn-info pull-right">작성완료</button>
-              </div>
-              <!-- /.box-footer -->
           </div>
           <!-- /.box -->
         </div>

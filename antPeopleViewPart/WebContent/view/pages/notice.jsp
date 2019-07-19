@@ -64,12 +64,12 @@
           <div class="box box-info">
             <div class="box-header">
               <h3 class="box-title">Data Table With Full Features</h3>
-              <button type="button" class="btn btn-info pull-right">글쓰기</button>
+              <button type="button" class="btn btn-info pull-right"><a href ="writearticle.jsp">글쓰기</a></button>
               <hr style="margin-bottom: 0 ; border: 0.5px solid lightgrey">
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="example1" class="table table-bordered table-striped">
+              <table id="noticeTable" class="table table-bordered table-striped">
 				<colgroup>
 				  <col style="width: 15%">
 				  <col style="width: 55%">
@@ -95,10 +95,10 @@
                	  <c:set var="noticeList" value="${requestScope.noticeList}"/>
 				  <c:forEach var="notice" items="${noticeList}">
 					<tr>
-					  <td style="text-align: center;">${notice.noticeNumber}</td>
+					  <td style="text-align: center;">${notice.number}</td>
 			<%--Title 클릭 시 해당 글 링크로 넘어감 서블릿 요청필요.--%>
-					  <td style="text-align: center;"><a href="TransProc?action=detailList&iCode=${notice.noticeNumber}">${notice.title}</a></td>
-					  <td style="text-align: center;"><fmt:formatDate value="${notice.noticeDate}" pattern="yy-MM-dd"/></td>
+					  <td style="text-align: center;"><a href="TransProc?action=detailList&iCode=${notice.number}">${notice.title}</a></td>
+					  <td style="text-align: center;"><fmt:formatDate value="${notice.date}" pattern="yy-MM-dd"/></td>
 					  <%-- 날짜를 String으로 받아오는 경우 parseDate --> formatDate로 두번실행.
 					  <td style="text-align: center;">
 					    <fmt:parseDate value="${notice.noticeDate}" var="dateFmt" pattern="yyyyMMdd"/>
@@ -146,7 +146,7 @@
 
 <script>
   $(function () {
-    $('#example1').DataTable()
+    $('#noticeTable').DataTable()
   })
 </script>
 
