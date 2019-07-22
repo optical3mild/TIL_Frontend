@@ -242,76 +242,121 @@ var endDay = new DayObj();
 var startTime = new TimeObj();
 var endTime = new TimeObj();
 
-// 모달창 이벤트 생성버튼
-$('#makeEvent').click(function() {
-  //modalform의 입력창을 class명으로 찾아 값을 가져오고, int값으로 변환하여 변수에 저장.
-  //Id셀렉터로 선택한 element내 요소를 find()로 조건선택하고
-  // each()로 동일조건의 모든 element를 익명함수로 처리
-  $('#inputTableForm').find('.timeForm').each(function() {
-    // name속성값과 입력된 값을 가져옴
-    var name = $(this).attr('name');
-    var temp = $(this).val();
-    // 가져온 값이 없거나 숫자가 아니면 0을 입력. 있으면 정수형으로 변환.
-    if (temp == "") { temp = 0; }
-    else { temp = parseInt(temp); }
-    // case별로 값을 검사. 범위를 벗어나면 0을 입력.
-    switch (name) {
-      case "startTime":
-        if(checkRange(name,temp) == "time") { startTime.time = temp; break; }
-        else { startTime.time = 0; break; }
-      case "startMin":
-        if(checkRange(name,temp) == "min") { startTime.min = temp; break; }
-        else { startTime.min = 0; break; }
-      case "endTime":
-        if(checkRange(name,temp) == "time") { endTime.time = temp; break; }
-        else { endTime.time = 0; break; }
-      case "endMin":
-        if(checkRange(name,temp) == "min") { endTime.min = temp; break; }
-        else { endTime.min = 0; break; }
+//이벤트 바 생성 시 drag 가능하게 속성 추가.
+/* initialize the external events
+ -----------------------------------------------------------------*/
+function init_events(ele) {
+  console.log("init")
+  console.log(ele.startTime)
+
+  ele.each(function () {
+
+    // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
+    // it doesn't need to have a start or end
+    var eventObject = {
+      title : $.trim($(this).text()),
+      startTime : $(this).data().startTime,
+      startMin : $(this).data().startMin,
+      endTime :  $(this).data().endTime,
+      endMin : $(this).data().endMin,
     }
+
+    // store the Event Object in the DOM element so we can get to it later
+    $(this).data('eventObject', eventObject)
+
+    // make the event draggable using jQuery UI
+    $(this).draggable({
+      zIndex        : 1070,
+      revert        : true, // will cause the event to go back to its
+      revertDuration: 0  //  original position after the drag
+    })
+
+  })
+}
+
+//가져온 이벤트 정보로 이벤트 바 등록 시 drag기능 추가.
+//init_events($('#external-events div.external-event'))
+
+
+/* ADDING EVENTS */
+var currColor = '#3c8dbc' //Red by default
+//Color chooser button
+var colorChooser = $('#color-chooser-btn')
+$('#color-chooser > li > a').click(function (e) {
+  e.preventDefault()
+  //Save color
+  currColor = $(this).css('color')
+  //Add color effect to button
+  $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor })
+})
+
+//이벤트 바 등록 -------------------------------------------
+$('#add-new-event').click(function (e) {
+  //??? preventDefault : 용도 불명....
+  e.preventDefault()
+
+  //새로운 이벤트 시간입력 --> title로 변경.
+  var new_st = $('#newE-startT').val();
+  if(new_st == "") {
+    new_st = "00:00";
+  }
+  var new_en = $('#newE-endT').val();
+  if(new_en == "") {
+    new_en = "00:00";
+  }
+  var newSTime = new_st.slice(0,2);
+  console.log(newSTime);
+  var newSMin = new_st.slice(3);
+  var newETime = new_en.slice(0,2);
+  var newEMin = new_en.slice(3);
+
+  //생성되는 이벤트 바 title.
+  var val = new_st+" ~ "+new_en;
+
+  //Create events
+  var eGroup = $('<div />');
+  var eRButton = $('<input>');
+  eRButton.attr({
+    type  : 'radio',
+    hidden: 'hidden',
+    name  : 'newEventBar'
   });
 
-  //수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
-  var newEventObj = createObj (startDay,endDay,startTime,endTime);
-  console.log('새로 생성된 obj배열: ');
-  console.log(newEventObj);
+  var event = $('<div />');
+  event.css({
+    'background-color': currColor,
+    'border-color'    : currColor,
+    'color'           : '#fff',
+    'width'           : '85%',
+    'display'         : 'inline-block',
+  }).addClass('external-event').html(val)
+  event.data({
+    startTime : newSTime,
+    startMin : newSMin,
+    endTime : newETime,
+    endMin : newEMin,
+  });
 
-  var alreadyExistDatas = [];
-  var alertMsg = "아래의 일정은 이미 존재합니다.\n";
-  //순차적으로 rendering
-  for(var i=0; i<newEventObj.length; i++) {
-    //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
-    if($('#calendar').data(newEventObj[i].id) != null) {
-      alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
-                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
-    } else {
-      //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
-      var convertedEvent = convertToEventObj(newEventObj[i]);
-      //Rendering
-      $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
+  var eCountSlot = $('<input />');
+  eCountSlot
+    .attr({ type : 'number', min : '0', step : '1', value : '0', })
+    .css({ 'width' : '13%', 'margin' : '0 0 0 2px', }
+  );
 
+  eGroup.append(eRButton);
+  eGroup.append(event);
+  eGroup.append(eCountSlot);
 
+  $('#external-events').prepend(eGroup);
+  console.log('beforeInit')
+  console.log(event.data())
+  //Add draggable funtionality
+  init_events(event)
+  console.log('init_when_group');
+  console.log(event.data());
 
-      $('#calendar').data(newEventObj[i].id, newEventObj[i]);
-      console.log('생성한 event: ');
-      console.log($('#calendar').data(newEventObj[i].id));
-      console.log('모든 event:');
-      console.log($('#calendar').data());
-    }
-  }
-  //경고창 팝업.
-  if(alreadyExistDatas.length>0) {
-    for(var i=0; i<alreadyExistDatas.length; i++) {
-      console.log(alreadyExistDatas[i]);
-      alertMsg = alertMsg + alreadyExistDatas[i] + "\n";
-    }
-    alert(alertMsg);
-    console.log('모든 event:');
-    console.log($('#calendar').data());
-  }
-});
-// ./ End Of Modal창 이벤트 생성버튼
-
+// ./ 이벤트 바 등록---------------------
+})
 
 //fullCalendar 로드, 초기화
 $(function() {
@@ -345,10 +390,6 @@ $(function() {
       endDay.month = end.get('month');
       endDay.date = end.get('date');
       endDay.day = end.get('day');
-      console.log("시작시간: ");
-      console.log(startDay);
-      console.log("종료: ");
-      console.log(endDay);
       //modal popup.
       $('#selectPopup').modal('show');
     },
@@ -372,204 +413,100 @@ $(function() {
 
     //drag and drop 활성화 필요.
     droppable : true,
-    drop      : function (date, allDay) { // this function is called when something is dropped
-
+    drop      : function (date, allDay, element) { // this function is called when something is dropped
       // retrieve the dropped element's stored Event Object
       var originalEventObject = $(this).data('eventObject')
-      console.log(originalEventObject);
+      // bar의 input값을 읽어옴
+      var workersForEvent = $(this).siblings('input[type="number"]').val()
+      console.log('인간수')
+      console.log(workersForEvent)
 
       // we need to copy it, so that multiple events don't have a reference to the same object
       var copiedEventObject = $.extend({}, originalEventObject)
 
       //시간정의
       // drop된 날짜값을 받음.
-      var startYear = date.get('year');
-      var startMonth = date.get('month');
-      var startDate = date.get('date');
-      var startDay = date.get('day');
+      var sYear = date.get('year');
+      var sMonth = date.get('month');
+      var sDate = date.get('date');
+      var sDay = date.get('day');
 
       //eventbar에 입력된 시간값을 가져옴
-      var startTime = copiedEventObject.startTime;
-      var startMin = copiedEventObject.startMin;
-      var endTime = copiedEventObject.endTime;
-      var endMin = copiedEventObject.endMin;
-      console.log('endTime');
-      console.log(endTime);
+      var sTime = copiedEventObject.startTime;
+      var sMin = copiedEventObject.startMin;
+      var eTime = copiedEventObject.endTime;
+      var eMin = copiedEventObject.endMin;
 
-      var tempCal = new Date(startYear,startMonth,startDate).getTime();
-      console.log('date_Test')
-      console.log(tempCal)
       //시작시간과 종료시간을 비교하여 시작시간이 종료시간보다 큰 경우, 종료일이 다음날인 것으로 계산한다.
-      if(startTime == endTime) {
-        if(startMin >= endMin) {
+      // getTime() : ms로 시간변환.
+      var tempCal = new Date(sYear,sMonth,sDate).getTime();
+      if(sTime == eTime) {
+        if(sMin >= eMin) {
           tempCal = tempCal + 24*60*60*1000;
         }
-      } else if(startTime >= endTime) {
-        tempCal = tempCal + 24*60*60*1000;
+      } else if(sTime >= eTime) {
+          tempCal = tempCal + 24*60*60*1000;
       }
-
       var calEndDate = new Date(tempCal);
 
-      var endYear = calEndDate.getFullYear();
-      var endMonth = calEndDate.getMonth();
-      var endDate = calEndDate.getDate();
-      var endDay = calEndDate.getDay();
+      var eYear = calEndDate.getFullYear();
+      var eMonth = calEndDate.getMonth();
+      var eDate = calEndDate.getDate();
+      var eDay = calEndDate.getDay();
 
-      var startObj = new DayObj(startYear,startMonth,startDate,startTime,startMin)
-      console.log('startObj')
-      console.log(startObj)
-      var endObj = new DayObj(endYear,endMonth,endDate,endTime,endMin)
-      var startT = new TimeObj(startTime,startMin)
-      var endT = new TimeObj(endTime,endMin)
-
+      var startObj = new DayObj(sYear,sMonth,sDate,sTime,sMin)
+      var endObj = new DayObj(eYear,eMonth,eDate,eTime,eMin)
+      var startT = new TimeObj(sTime,sMin)
+      var endT = new TimeObj(eTime,eMin)
 
       // copiedEventObject : calendar에 등록되는 이벤트.
       copiedEventObject.id = userId+"_"+startObj.shortType()+startT.shortType()+endObj.shortType()+endT.shortType()
-      copiedEventObject.start = new Date(startYear,startMonth,startDate,startTime,startMin)
-      copiedEventObject.end = new Date(endYear,endMonth,endDate,endTime,endMin)
-      console.log(date);
-      //copiedEventObject.allDay          = allDay
+      copiedEventObject.title = workersForEvent + "__" + originalEventObject.title
+      copiedEventObject.start = new Date(sYear,sMonth,sDate,sTime,sMin)
+      copiedEventObject.end = new Date(eYear,eMonth,eDate,eTime,eMin)
       copiedEventObject.backgroundColor = $(this).css('background-color')
       copiedEventObject.borderColor     = $(this).css('border-color')
 
-      console.log(copiedEventObject)
       // render the event on the calendar
       // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
       $('#calendar').fullCalendar('renderEvent', copiedEventObject, true)
 
+      //render시 title을 id로 정하여 표시된 element를 찾아 인원수 element추가.
+      //var selectId = copiedEventObject.id;
+      //$('#calendar span:contains('+selectId+')').parent().append('<span class="label label-success">'+workersForEvent+'</span>')
+      //  .text(originalEventObject.title)
+
+//
+      var calMon, calDate;
+      function calVal(sMonth,sDate) {
+        if(sMonth<10) {
+          var cMon = sMonth+1;
+          calMon = "0" + cMon;
+        } else {
+          calMon = sMonth+1;
+        }
+        if(sDate<10) {
+          calDate = "0" + sDate;
+        } else {
+          calDate = sDate;
+        }
+      }
+      var selectByDate = sYear+'-'+calMon+'-'+calDate
+      console.log('합성날짜')
+      console.log(selectByDate)
+      var originPoint = $('.fc-day-top[data-date='+selectByDate+']').parent().index()
+      console.log('합성날짜')
+      console.log(originPoint)
       // is the "remove after drop" checkbox checked?
       if ($('#drop-remove').is(':checked')) {
         // if so, remove the element from the "Draggable Events" list
         $(this).remove()
       }
-
     }
-
-
   });
-  // ./ End of fullCalendar 초기화 -------------------------------------
-
-  //이벤트 바 생성 시 drag 가능하게 속성 추가.
-  /* initialize the external events
-   -----------------------------------------------------------------*/
-  function init_events(ele) {
-    console.log("init")
-    console.log(ele.startTime)
-
-    ele.each(function () {
-
-      // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-      // it doesn't need to have a start or end
-      var eventObject = {
-        title : $.trim($(this).text()),
-        startTime : $(this).data().startTime,
-        startMin : $(this).data().startMin,
-        endTime :  $(this).data().endTime,
-        endMin : $(this).data().endMin,
-      }
-
-      // store the Event Object in the DOM element so we can get to it later
-      $(this).data('eventObject', eventObject)
-
-      // make the event draggable using jQuery UI
-      $(this).draggable({
-        zIndex        : 1070,
-        revert        : true, // will cause the event to go back to its
-        revertDuration: 0  //  original position after the drag
-      })
-
-    })
-  }
-
-  //가져온 이벤트 정보로 이벤트 바 등록 시 drag기능 추가.
-  //init_events($('#external-events div.external-event'))
-
-
-  /* ADDING EVENTS */
-  var currColor = '#3c8dbc' //Red by default
-  //Color chooser button
-  var colorChooser = $('#color-chooser-btn')
-  $('#color-chooser > li > a').click(function (e) {
-    e.preventDefault()
-    //Save color
-    currColor = $(this).css('color')
-    //Add color effect to button
-    $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor })
-  })
-
-//이벤트 바 등록 -------------------------------------------
-  $('#add-new-event').click(function (e) {
-    //??? preventDefault : 용도 불명....
-    e.preventDefault()
-
-    //새로운 이벤트 시간입력 --> title로 변경.
-    var new_st = $('#newE-startT').val();
-    if(new_st == "") {
-      new_st = "00:00";
-    }
-    var new_en = $('#newE-endT').val();
-    if(new_en == "") {
-      new_en = "00:00";
-    }
-    var newSTime = new_st.slice(0,2);
-    console.log(newSTime);
-    var newSMin = new_st.slice(3);
-    var newETime = new_en.slice(0,2);
-    var newEMin = new_en.slice(3);
-
-    //생성되는 이벤트 바 title.
-    var val = new_st+" ~ "+new_en;
-
-    //Create events
-    var eGroup = $('<div />');
-    var eRButton = $('<input>');
-    eRButton.attr({
-      type  : 'radio',
-      hidden: 'hidden',
-      name  : 'newEventBar'
-    });
-
-    var event = $('<div />');
-    event.css({
-      'background-color': currColor,
-      'border-color'    : currColor,
-      'color'           : '#fff',
-      'width'           : '85%',
-      'display'         : 'inline-block',
-    }).addClass('external-event')
-    .html(val)
-    event.data({
-      startTime : newSTime,
-      startMin : newSMin,
-      endTime : newETime,
-      endMin : newEMin,
-    });
-
-    var eCountSlot = $('<input />');
-    eCountSlot.attr({
-      type : 'number',
-      min : '0',
-      step : '1',
-    }).css({
-      'width' : '13%',
-      'margin' : '0 0 0 2px',
-    });
-
-    eGroup.append(eRButton);
-    eGroup.append(event);
-    eGroup.append(eCountSlot);
-
-    $('#external-events').prepend(eGroup);
-    console.log('beforeInit')
-    console.log(event.data())
-    //Add draggable funtionality
-    init_events(event)
-    console.log('init_when_group');
-    console.log(event.data());
-
-  // ./ 이벤트 바 등록---------------------
-  })
 });
+// ./ End of fullCalendar 초기화 -------------------------------------
+
 </script>
 </body>
 </html>
