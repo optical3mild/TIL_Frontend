@@ -17,13 +17,13 @@
   <link rel="stylesheet" href="../resources/bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
   <!-- Theme style -->
   <link rel="stylesheet" href="../resources/dist/css/AdminLTE.min.css">
-  <!-- AdminLTE Skins. Choose a skin from the css/skins
-       folder instead of downloading all of them to reduce the load. -->
+  <!-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="../resources/dist/css/skins/_all-skins.min.css">
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
+  <!-- external eventbar style -->
   <style>
     .clickEvent_Opacity {
       opacity : 0.5;
@@ -60,17 +60,18 @@
             <div class="box-body">
               <!-- the events -->
               <div id="external-events">
-                <div>
-                  <input type="radio" name="event" checked="false">
-                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
-                  <input type="number" style="width:15%">
-                </div>
-                <div>
-                  <input type="radio" name="event" checked="false">
-                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
-                  <input type="number" style="width:15%">
-                </div>
                 <!--
+                <div>
+                  <input type="radio" name="event" checked="false">
+                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
+                  <input type="number" style="width:15%">
+                </div>
+                <div>
+                  <input type="radio" name="event" checked="false">
+                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
+                  <input type="number" style="width:15%">
+                </div>
+
                 <div>
                   <input type="radio" name="event" hidden><div class="external-event bg-green">Lunch</div>
                 </div>
@@ -401,8 +402,23 @@ $(function() {
       endDay.month = end.get('month');
       endDay.date = end.get('date');
       endDay.day = end.get('day');
-      //modal popup.
-      $('#selectPopup').modal('show');
+
+      if($('.external-event').hasClass('clickEvent_Opacity') == true) {
+        // 선택된 event bar를 찾아 data를 가져옴.
+        var selectEventBar = $('.clickEvent_Opacity')
+        var workersForEvent = selectEventBar.siblings('input[type="number"]').val();
+        console.log("data추출")
+        console.log(selectEventBar.data())
+        console.log("인간수2")
+        console.log(workersForEvent)
+        startTime.
+
+      } else {
+        //modal popup.
+        $('#selectPopup').modal('show');
+      }
+
+
     },
     // End of select dates---------------
 
