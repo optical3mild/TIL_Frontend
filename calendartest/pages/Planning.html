@@ -22,8 +22,14 @@
   <link rel="stylesheet" href="../resources/dist/css/skins/_all-skins.min.css">
 
   <!-- Google Font -->
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+  <style>
+    .clickEvent_Opacity {
+      opacity : 0.5;
+    }
+  </style>
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -54,12 +60,17 @@
             <div class="box-body">
               <!-- the events -->
               <div id="external-events">
-              <!--
                 <div>
-                  <input type="radio" name="event" hidden>
+                  <input type="radio" name="event" checked="false">
                   <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
                   <input type="number" style="width:15%">
                 </div>
+                <div>
+                  <input type="radio" name="event" checked="false">
+                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
+                  <input type="number" style="width:15%">
+                </div>
+                <!--
                 <div>
                   <input type="radio" name="event" hidden><div class="external-event bg-green">Lunch</div>
                 </div>
@@ -315,12 +326,12 @@ $('#add-new-event').click(function (e) {
 
   //Create events
   var eGroup = $('<div />');
-  var eRButton = $('<input>');
-  eRButton.attr({
-    type  : 'radio',
-    hidden: 'hidden',
-    name  : 'newEventBar'
-  });
+  // var eRButton = $('<input>');
+  // eRButton.attr({
+  //   type  : 'radio',
+  //   //hidden: 'hidden',
+  //   name  : 'newEventBar'
+  // });
 
   var event = $('<div />');
   event.css({
@@ -343,7 +354,7 @@ $('#add-new-event').click(function (e) {
     .css({ 'width' : '13%', 'margin' : '0 0 0 2px', }
   );
 
-  eGroup.append(eRButton);
+  // eGroup.append(eRButton);
   eGroup.append(event);
   eGroup.append(eCountSlot);
 
@@ -476,27 +487,22 @@ $(function() {
       //$('#calendar span:contains('+selectId+')').parent().append('<span class="label label-success">'+workersForEvent+'</span>')
       //  .text(originalEventObject.title)
 
-//
-      var calMon, calDate;
-      function calVal(sMonth,sDate) {
-        if(sMonth<10) {
-          var cMon = sMonth+1;
-          calMon = "0" + cMon;
+//캘린더에서 날짜로 위치검색
+      function calVal(num) {
+        if(num<10) {
+          return "0" + num;
         } else {
-          calMon = sMonth+1;
-        }
-        if(sDate<10) {
-          calDate = "0" + sDate;
-        } else {
-          calDate = sDate;
+          return num;
         }
       }
-      var selectByDate = sYear+'-'+calMon+'-'+calDate
+      var selectByDate = sYear+'-'+calVal(sMonth+1)+'-'+calVal(sDate);
       console.log('합성날짜')
       console.log(selectByDate)
-      var originPoint = $('.fc-day-top[data-date='+selectByDate+']').parent().index()
-      console.log('합성날짜')
+      var originPoint = $('.fc-day-top[data-date='+selectByDate+']').index()
+      console.log('드롭한 이벤트의 캘린더 행 내 위치')
       console.log(originPoint)
+// ./--------------------------------------------------------------------
+
       // is the "remove after drop" checkbox checked?
       if ($('#drop-remove').is(':checked')) {
         // if so, remove the element from the "Draggable Events" list
@@ -507,6 +513,22 @@ $(function() {
 });
 // ./ End of fullCalendar 초기화 -------------------------------------
 
+$(document).on('click','.external-event',function() {
+  $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
+  var checkSelect = $(this).hasClass('clickEvent_Opacity');
+  console.log('dfsafafdsafdaf')
+  console.log(checkSelect)
+  if(checkSelect == true) {
+    $(this).removeClass('clickEvent_Opacity')
+    //$(this).css({'opacity':1});
+  } else if(checkSelect == false) {
+    $(this).addClass('clickEvent_Opacity')
+    //$(this).css({'opacity': 0.5});
+  }
+  //$(this).prev().attr('checked', true);
+  console.log('클릭')
+  //console.log($('#external-events input').is(":checked").next().data())
+})
 </script>
 </body>
 </html>
