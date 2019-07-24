@@ -38,11 +38,14 @@ function TimeObj(time,min) {
 //범위 내 모든 시작일 날짜정보 생성, 객체로 리턴.
 function divideRange (start, end, start_T, end_T) {
   var start = new Date(start.year,start.month,start.date).getTime();
+  console.log('dividecheck')
+  console.log(start)
   var end = new Date(end.year,end.month,end.date).getTime();
   var oneDayValue = 24*60*60*1000;
   var diffDay = (Math.abs(end - start))/(1000 * 3600 * 24);
 
   var newDayListArray = [];
+
   for (var i=0; i<diffDay; i++) {
     //시작일 정보.
     var newStart = new Date(start + oneDayValue * i);
@@ -52,10 +55,22 @@ function divideRange (start, end, start_T, end_T) {
     newStartInfo.date = newStart.getDate();
     newStartInfo.day = newStart.getDay();
 
+    console.log('시작시간')
+    console.log(start_T.time)
+    console.log('종료시간')
+    console.log(end_T.time)
+    console.log(start_T.time >= end_T.time)
+
     //종료일 정보.
     var newEnd;
     var newEndInfo = new DayObj();
     if(start_T.time > end_T.time) {
+      newEnd = new Date(start + oneDayValue * (i+1));
+      newEndInfo.year = newEnd.getFullYear();
+      newEndInfo.month = newEnd.getMonth();
+      newEndInfo.date = newEnd.getDate();
+      newEndInfo.day = newEnd.getDay();
+    } else if((start_T.time == end_T.time) && (start_T.min >= end_T.min)) {
       newEnd = new Date(start + oneDayValue * (i+1));
       newEndInfo.year = newEnd.getFullYear();
       newEndInfo.month = newEnd.getMonth();
@@ -67,7 +82,7 @@ function divideRange (start, end, start_T, end_T) {
       newEndInfo.date = newStart.getDate();
       newEndInfo.day = newStart.getDay();
     }
-
+// ((start_T.time = end_T.time) && (start_T.min >= end_T.min)))
     newDayListArray[i] = {
       startInfo : newStartInfo,
       endInfo : newEndInfo
@@ -105,14 +120,17 @@ function convertToEventObj(antObj) {
   var eTInfo = parseInt(antObj.endTime.slice(0,2));
   var eMInfo = parseInt(antObj.endTime.slice(2));
 
+
+  var colorByTime = colorPicker(sTInfo);
+
   var eventForRendering = {
     id : antObj.id,
     title : antObj.title,
     start : new Date(syInfo,smInfo,sdInfo,sTInfo,sMInfo),
     end : new Date(eyInfo,emInfo,edInfo,eTInfo,eMInfo),
     allDay : false,
-    backgroundColor : antObj.backgroundColor,
-    borderColor: antObj.borderColor
+    backgroundColor : colorByTime,
+    borderColor: colorByTime,
   };
   console.log('start:');
   console.log(eventForRendering.start);
@@ -122,12 +140,13 @@ function convertToEventObj(antObj) {
 };
 
 //객체생성함수
-function createObj (startD,endD,startT,endT) {
+function createObj (startD,endD,startT,endT,numOfWorkers,state) {
   //범위 내 시작일 날짜정보 객체들로 구성된 배열 생성
   var dayObjArray = divideRange(startD, endD, startT, endT);
+  console.log('after divideRange')
   console.log(dayObjArray);
   console.log(dayObjArray.length);
-  var objTitle = startT.colonType() + "~" + endT.colonType();
+  var objTitle = numOfWorkers+"__"+startT.colonType() + "~" + endT.colonType();
   console.log(objTitle);
 
   var newObjArray = new Array();
@@ -146,10 +165,11 @@ function createObj (startD,endD,startT,endT) {
       endDate : endObj.shortType(),
       startTime : startT.shortType(),
       endTime : endT.shortType(),
-      backgroundColor : '#00a65a',
-      borderColor     : '#00a65a',
+      //backgroundColor : '#00a65a',
+      //borderColor     : '#00a65a',
       userId : userId,
-      // status : status,
+      state : state,
+      manPower : numOfWorkers
       // groupName : groupName
     }
     newObjArray[i] = antPeopleObj;
@@ -158,3 +178,22 @@ function createObj (startD,endD,startT,endT) {
   }
   return newObjArray;
 };
+
+var colorSet = {
+  earlyMoring : '#26678d',//06~08
+  morning : '#5da3cd', //09~11
+  noon : '#5eccd7',//12~14
+  afternoon : '#7dda60', //15~17
+  beforSunset: '#f39c12', //18~20
+  night : '#4e48b9', //21~05
+}
+//color picker
+function colorPicker(time) {
+  //var num = startT.time;
+  if((time>=6)&&(time<9)) { return colorSet.earlyMoring; }
+  else if((time>=9)&&(time<12)) { return colorSet.morning; }
+  else if((time>=12)&&(time<15)) { return colorSet.noon; }
+  else if((time>=15)&&(time<18)) { return colorSet.afternoon; }
+  else if((time>=18)&&(time<21)) { return colorSet.beforSunset; }
+  else { return colorSet.night; }
+}

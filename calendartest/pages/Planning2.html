@@ -28,6 +28,10 @@
     .clickEvent_Opacity {
       opacity : 0.5;
     }
+    .divArea {
+      border : 0.5px solid #ccc;
+      margin : 5px;
+    }
   </style>
 
 </head>
@@ -104,54 +108,20 @@
               <h3 class="box-title">Create Event</h3>
             </div>
             <div class="box-body">
-              <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
-                <!--<button type="button" id="color-chooser-btn" class="btn btn-info btn-block dropdown-toggle" data-toggle="dropdown">Color <span class="caret"></span></button>-->
-                <ul class="fc-color-picker" id="color-chooser">
-                  <li><a class="text-aqua" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-blue" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-light-blue" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-teal" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-yellow" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-orange" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-green" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-lime" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-red" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-purple" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-fuchsia" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-muted" href="#"><i class="fa fa-square"></i></a></li>
-                  <li><a class="text-navy" href="#"><i class="fa fa-square"></i></a></li>
-                </ul>
-              </div>
-              <!-- /btn-group -->
-              <hr>
+
               <div class="input-group" style="width:100%">
-                <!--
-                <table style="width:100%">
-                  <tr>
-                    <td><label for="newE-startT">시작시간</label></td>
-                    <td><input class="form-control" type="time" id="newE-startT"></td>
-                  </tr>
-                  <tr>
-                    <td><label for="newE-endT">종료시간</label></td>
-                    <td><input class="form-control" type="time" id="newE-endT"></td>
-                  </tr>
-                  <tr>
-                    <td colspan="2"><button id="add-new-event" type="button" class="btn btn-primary btn-flat pull-right">Add</button></td>
-                    <td></td>
-                  </tr>
-                </table>
-                -->
                 <div>
                   <label for="newE-startT">시작시간</label>
-                  <input class="form-control" type="time" id="newE-startT" value="00:00">
+                  <input class="form-control timeForm" name='start-insert' type="time" id="newE-startT" value="00:00">
                 </div>
                 <br><br>
                 <div>
                   <label for="newE-endT">종료시간</label>
-                  <input class="form-control" type="time" id="newE-endT" value="00:00">
+                  <input class="form-control timeForm" name='end-insert' type="time" id="newE-endT" value="00:00">
                 </div>
-                <br><br><hr>
-                <button id="add-new-event" type="button" class="btn btn-primary btn-flat pull-right">Add</button>
+                <br><br>
+                <hr class="divArea">
+                <button id="add-new-event" type="button" class="btn btn-primary btn-flat event-maker pull-right">Add</button>
                 <!-- /btn-group -->
 
               </div>
@@ -240,7 +210,7 @@
 <script src="../resources/dist/js/demo.js"></script>
 
 <!-- AntPeople FullCalendar function -->
-<script src="../resources/js/ant_fullcalendar3.js"></script>
+<script src="../resources/js/ant_fullcalendar4.js"></script>
 
 <!-- fullCalendar -->
 <script src="../resources/bower_components/moment/moment.js"></script>
@@ -253,6 +223,14 @@ var startDay = new DayObj();
 var endDay = new DayObj();
 var startTime = new TimeObj();
 var endTime = new TimeObj();
+var state = 0;
+
+$('.timeForm').change(function() {
+  console.log($('input[name="start-insert"]').val())
+  var insStartValue = parseInt($('input[name="start-insert"]').val().slice(0,2));
+  var newColor = colorPicker(insStartValue);
+  $('.event-maker').css({ 'backgroundColor' : newColor, 'borderColor' : newColor });
+})
 
 //이벤트 바 생성 시 drag 가능하게 속성 추가.
 /* initialize the external events
@@ -261,13 +239,16 @@ function init_events(ele) {
   ele.each(function () {
     var eventObject = {
       title : $.trim($(this).text()),
-      startTime : $(this).data().startTime,
-      startMin : $(this).data().startMin,
-      endTime :  $(this).data().endTime,
-      endMin : $(this).data().endMin,
+      //객체로 시간저장.
+      startTime : $(this).data().startTimeObj,
+      endTime :  $(this).data().endTimeObj,
     }
+    console.log('eventObject.startTime')
+    console.log(eventObject.startTime)
     // store the Event Object in the DOM element so we can get to it later
     $(this).data('eventObject', eventObject)
+    console.log('eventObject')
+    console.log(eventObject)
     // make the event draggable using jQuery UI
     $(this).draggable({
       zIndex        : 1070,
@@ -276,88 +257,62 @@ function init_events(ele) {
     })
   })
 }
-
 //가져온 이벤트 정보로 이벤트 바 등록 시 drag기능 추가.
 //init_events($('#external-events div.external-event'))
 
-/* ADDING EVENTS */
-var currColor = '#3c8dbc' //Red by default
-//Color chooser button
-var colorChooser = $('#color-chooser-btn')
-$('#color-chooser > li > a').click(function (e) {
-  e.preventDefault()
-  //Save color
-  currColor = $(this).css('color')
-  //Add color effect to button
-  $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor })
-})
 
 //이벤트 바 등록 -------------------------------------------
 $('#add-new-event').click(function (e) {
-  //??? preventDefault : 용도 불명....
   e.preventDefault()
-
   //새로운 이벤트 시간입력 --> title로 변경.
-  var new_st = $('#newE-startT').val();
-  if(new_st == "") {
-    new_st = "00:00";
-  }
-  var new_en = $('#newE-endT').val();
-  if(new_en == "") {
-    new_en = "00:00";
-  }
-  var newSTime = new_st.slice(0,2);
-  var newSMin = new_st.slice(3);
-  var newETime = new_en.slice(0,2);
-  var newEMin = new_en.slice(3);
 
+  var new_st = $('#newE-startT').val(); if(new_st == "") { new_st = "00:00"; }
+  var new_en = $('#newE-endT').val(); if(new_en == "") { new_en = "00:00"; }
+  console.log('입력시간')
+  console.log(new_st)
+  console.log(new_en)
   //생성되는 이벤트 바 title.
   var val = new_st+" ~ "+new_en;
 
+  //정수형으로 시간정보 변환
+  var newSTime = parseInt(new_st.slice(0,2));
+  var newSMin = parseInt(new_st.slice(3));
+  var newETime = parseInt(new_en.slice(0,2));
+  var newEMin = parseInt(new_en.slice(3));
+  //시간정보를 프로토타입 객체로 변환.
+  var sumStartTime = new TimeObj(newSTime,newSMin);
+  var sumEndTime = new TimeObj(newETime,newEMin);
+
+  var colorByTime = colorPicker(newSTime);
+
+  console.log('sumStartTime')
+  console.log(sumStartTime)
+
   //Create events
   var eGroup = $('<div />');
-  // var eRButton = $('<input>');
-  // eRButton.attr({
-  //   type  : 'radio',
-  //   //hidden: 'hidden',
-  //   name  : 'newEventBar'
-  // });
-
   var event = $('<div />');
   event.css({
-    'background-color': currColor,
-    'border-color'    : currColor,
-    'color'           : '#fff',
-    'width'           : '85%',
-    'display'         : 'inline-block',
+    'background-color': colorByTime, 'border-color': colorByTime, 'color': '#fff',
+    'width': '85%', 'display': 'inline-block',
   }).addClass('external-event').html(val)
-  event.data({
-    startTime : newSTime,
-    startMin : newSMin,
-    endTime : newETime,
-    endMin : newEMin,
-  });
-
+  //생성될 바에 data()로 저장.
+  event.data({ startTimeObj : sumStartTime, endTimeObj : sumEndTime, });
   var eCountSlot = $('<input />');
   eCountSlot
     .attr({ type : 'number', min : '0', step : '1', value : '0', })
     .css({ 'width' : '13%', 'margin' : '0 0 0 2px', }
   );
-
-  // eGroup.append(eRButton);
+  //엘리먼트 구성
   eGroup.append(event);
   eGroup.append(eCountSlot);
-
+  //엘리먼트 삽입
   $('#external-events').prepend(eGroup);
-  console.log('beforeInit')
-  console.log(event.data())
-  //Add draggable funtionality
-  init_events(event)
-  console.log('init_when_group');
-  console.log(event.data());
 
-// ./ 이벤트 바 등록---------------------
+  //드래그 기능 추가. 시간정보를 담은 객체를 만들어 삽입.
+  init_events(event)
 })
+// ./ 이벤트 바 등록---------------------
+
 
 //fullCalendar 로드, 초기화
 $(function() {
@@ -378,10 +333,11 @@ $(function() {
 
     //create
     // select dates.
+    editable : true,
     selectable: true,
     selectHelper: true,
     select: function(start, end) {
-      // 선택한 연도,월,일을 ant_fullcalendar.js의 내장객체에 저장.
+      // 선택한 연도,월,일을 객체에 저장.
       // get()--> moments.js의 function.
       startDay.year = start.get('year');
       startDay.month = start.get('month');
@@ -392,22 +348,29 @@ $(function() {
       endDay.date = end.get('date');
       endDay.day = end.get('day');
 
+      console.log('셀렉트 확인')
+      console.log(startDay)
+      console.log(endDay)
+
       if($('.external-event').hasClass('clickEvent_Opacity') == true) {
         // 선택된 event bar를 찾아 data를 가져옴.
         var selectEventBar = $('.clickEvent_Opacity')
         var workersForEvent = selectEventBar.siblings('input[type="number"]').val();
-        console.log("data추출")
-        console.log(selectEventBar.data())
-        console.log("인간수2")
-        console.log(workersForEvent)
-        var selectEBarData = selectEventBar.data();
-        startTime.time = selectEBarData.startTime;
-        startTime.min = selectEBarData.startMin;
-        endTime.time = selectEBarData.endTime;
-        endTime.min = selectEBarData.endMin;
 
+        //엘리먼트에 저장된 시간정보를 읽어 전역변수에 시간정보 저장.
+        var selectEBarData = selectEventBar.data();
+        console.log("selectEventBar.data()")
+        console.log(selectEventBar.data())
+        startTime.time = selectEBarData.startTimeObj.time;
+        console.log('startTime.time')
+        console.log(startTime.time)
+        startTime.min = selectEBarData.startTimeObj.min;
+        endTime.time = selectEBarData.endTimeObj.time;
+        endTime.min = selectEBarData.endTimeObj.min;
+
+//객체 생성과정을 전역함수로....
         //수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
-        var newEventObj = createObj (startDay,endDay,startTime,endTime);
+        var newEventObj = createObj (startDay,endDay,startTime,endTime,workersForEvent);
         console.log('새로 생성된 obj배열: ');
         console.log(newEventObj);
 
@@ -424,7 +387,7 @@ $(function() {
             var convertedEvent = convertToEventObj(newEventObj[i]);
             //Rendering
             $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
-      
+
             $('#calendar').data(newEventObj[i].id, newEventObj[i]);
             console.log('생성한 event: ');
             console.log($('#calendar').data(newEventObj[i].id));
@@ -442,7 +405,7 @@ $(function() {
           console.log('모든 event:');
           console.log($('#calendar').data());
         }
-
+// ./객체 생성과정을 전역함수로....
       } else {
         //modal popup.
         $('#selectPopup').modal('show');
@@ -480,7 +443,87 @@ $(function() {
 
       // we need to copy it, so that multiple events don't have a reference to the same object
       var copiedEventObject = $.extend({}, originalEventObject)
+      console.log('copiedEventObject')
+      console.log(copiedEventObject)
 
+      //시간정의
+      // drop된 날짜값을 받음.
+      var sYear = date.get('year');
+      var sMonth = date.get('month');
+      var sDate = date.get('date');
+      var sDay = date.get('day');
+
+      console.log('date')
+      console.log(date)
+
+      //전역변수에 날짜정보 저장. --> drop시 시작날과 종료일은 동일하게 입력
+      startDay.year = date.get('year');
+      startDay.month = date.get('month');
+      startDay.date = date.get('date');
+      startDay.day = date.get('day');
+
+      //drop 시 하루를 더해 종료날짜를 정함.
+      var endInfo = date.add(1, 'days')
+      console.log('endInfo')
+      console.log(endInfo)
+      endDay.year = endInfo.get('year');
+      endDay.month = endInfo.get('month');
+      endDay.date = endInfo.get('date');
+      endDay.day = endInfo.get('day');
+
+      //객체로 저장된 시간정보를 전역변수에 저장.
+      startTime.time = copiedEventObject.startTime.time;
+      startTime.min = copiedEventObject.startTime.min;
+      endTime.time = copiedEventObject.endTime.time;
+      endTime.min = copiedEventObject.endTime.min;
+
+      console.log('시간객체 확인')
+      console.log(startDay)
+      console.log(endDay)
+      console.log(startTime)
+      console.log(endTime)
+      //객체 생성과정을 전역함수로....
+      //수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
+      var newEventObj = createObj (startDay,endDay,startTime,endTime,workersForEvent);
+      console.log('새로 생성된 obj배열: ');
+      console.log(newEventObj);
+
+      var alreadyExistDatas = [];
+      var alertMsg = "아래의 일정은 이미 존재합니다.\n";
+      //순차적으로 rendering
+      for(var i=0; i<newEventObj.length; i++) {
+        //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
+        if($('#calendar').data(newEventObj[i].id) != null) {
+          alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
+                            + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
+        } else {
+          //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
+          var convertedEvent = convertToEventObj(newEventObj[i]);
+          //Rendering
+          $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
+
+          $('#calendar').data(newEventObj[i].id, newEventObj[i]);
+          console.log('생성한 event: ');
+          console.log($('#calendar').data(newEventObj[i].id));
+          console.log('모든 event:');
+          console.log($('#calendar').data());
+        }
+      }
+      //경고창 팝업.
+      if(alreadyExistDatas.length>0) {
+        for(var i=0; i<alreadyExistDatas.length; i++) {
+          console.log(alreadyExistDatas[i]);
+          alertMsg = alertMsg + alreadyExistDatas[i] + "\n";
+        }
+        alert(alertMsg);
+        console.log('모든 event:');
+        console.log($('#calendar').data());
+      }
+      // ./객체 생성과정을 전역함수로....
+
+
+/*
+    // *--------------------------------------------*
       //시간정의
       // drop된 날짜값을 받음.
       var sYear = date.get('year');
@@ -527,7 +570,7 @@ $(function() {
       // render the event on the calendar
       // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
       $('#calendar').fullCalendar('renderEvent', copiedEventObject, true)
-
+*/
       //render시 title을 id로 정하여 표시된 element를 찾아 인원수 element추가.
       //var selectId = copiedEventObject.id;
       //$('#calendar span:contains('+selectId+')').parent().append('<span class="label label-success">'+workersForEvent+'</span>')
@@ -559,6 +602,7 @@ $(function() {
 });
 // ./ End of fullCalendar 초기화 -------------------------------------
 
+//external eventbar 선택기능
 $(document).on('click','.external-event',function() {
   $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
   var checkSelect = $(this).hasClass('clickEvent_Opacity');
@@ -566,15 +610,81 @@ $(document).on('click','.external-event',function() {
   console.log(checkSelect)
   if(checkSelect == true) {
     $(this).removeClass('clickEvent_Opacity')
-    //$(this).css({'opacity':1});
   } else if(checkSelect == false) {
     $(this).addClass('clickEvent_Opacity')
-    //$(this).css({'opacity': 0.5});
   }
   //$(this).prev().attr('checked', true);
   console.log('클릭')
   //console.log($('#external-events input').is(":checked").next().data())
 })
+
+// 모달창 이벤트 생성버튼
+$('#makeEvent').click(function() {
+  //modalform의 입력창을 class명으로 찾아 값을 가져오고, int값으로 변환하여 변수에 저장.
+  //Id셀렉터로 선택한 element내 요소를 find()로 조건선택하고
+  // each()로 동일조건의 모든 element를 익명함수로 처리
+  $('#inputTableForm').find('.timeForm').each(function() {
+    // name속성값과 입력된 값을 가져옴
+    var name = $(this).attr('name');
+    var temp = $(this).val();
+    // 가져온 값이 없거나 숫자가 아니면 0을 입력. 있으면 정수형으로 변환.
+    if (temp == "") { temp = 0; }
+    else { temp = parseInt(temp); }
+    // case별로 값을 검사. 범위를 벗어나면 0을 입력.
+    switch (name) {
+      case "startTime":
+        if(checkRange(name,temp) == "time") { startTime.time = temp; break; }
+        else { startTime.time = 0; break; }
+      case "startMin":
+        if(checkRange(name,temp) == "min") { startTime.min = temp; break; }
+        else { startTime.min = 0; break; }
+      case "endTime":
+        if(checkRange(name,temp) == "time") { endTime.time = temp; break; }
+        else { endTime.time = 0; break; }
+      case "endMin":
+        if(checkRange(name,temp) == "min") { endTime.min = temp; break; }
+        else { endTime.min = 0; break; }
+    }
+  });
+
+//수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
+  var newEventObj = createObj (startDay,endDay,startTime,endTime);
+  console.log('새로 생성된 obj배열: ');
+  console.log(newEventObj);
+
+  var alreadyExistDatas = [];
+  var alertMsg = "아래의 일정은 이미 존재합니다.\n";
+  //순차적으로 rendering
+  for(var i=0; i<newEventObj.length; i++) {
+    //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
+    if($('#calendar').data(newEventObj[i].id) != null) {
+      alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
+                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
+    } else {
+      //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
+      var convertedEvent = convertToEventObj(newEventObj[i]);
+      //Rendering
+      $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
+
+      $('#calendar').data(newEventObj[i].id, newEventObj[i]);
+      console.log('생성한 event: ');
+      console.log($('#calendar').data(newEventObj[i].id));
+      console.log('모든 event:');
+      console.log($('#calendar').data());
+    }
+  }
+  //경고창 팝업.
+  if(alreadyExistDatas.length>0) {
+    for(var i=0; i<alreadyExistDatas.length; i++) {
+      console.log(alreadyExistDatas[i]);
+      alertMsg = alertMsg + alreadyExistDatas[i] + "\n";
+    }
+    alert(alertMsg);
+    console.log('모든 event:');
+    console.log($('#calendar').data());
+  }
+});
+// ./ End Of Modal창 이벤트 생성버튼
 </script>
 </body>
 </html>
