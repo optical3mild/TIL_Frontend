@@ -25,13 +25,8 @@
 
   <!-- external eventbar style -->
   <style>
-    .clickEvent_Opacity {
-      opacity : 0.5;
-    }
-    .divArea {
-      border : 0.5px solid #ccc;
-      margin : 5px;
-    }
+    .clickEvent_Opacity { opacity : 0.5; }
+    .divArea { border : 0.5px solid #ccc; margin : 5px; }
   </style>
 
 </head>
@@ -57,6 +52,7 @@
     <section class="content">
       <div class="row">
         <div class="col-md-3">
+
           <div class="box box-solid">
             <div class="box-header with-border">
               <h4 class="box-title">Draggable Events</h4>
@@ -64,40 +60,6 @@
             <div class="box-body">
               <!-- the events -->
               <div id="external-events">
-                <!--
-                <div>
-                  <input type="radio" name="event" checked="false">
-                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
-                  <input type="number" style="width:15%">
-                </div>
-                <div>
-                  <input type="radio" name="event" checked="false">
-                  <div class="external-event bg-green" style="display:inline-block; width:83%">Lunch</div>
-                  <input type="number" style="width:15%">
-                </div>
-
-                <div>
-                  <input type="radio" name="event" hidden><div class="external-event bg-green">Lunch</div>
-                </div>
-                <div class="external-event bg-green">Lunch</div>
-                <div class="external-event" style="background-color: rgb(96, 92, 168);">오전</div>
-                <div class="external-event">오후</div>
-                <div class="external-event">야간</div>
-                <div class="external-event bg-yellow">Go home</div>
-                <div class="external-event bg-aqua">Do homework</div>
-                <div class="external-event bg-light-blue">Work on UI design</div>
-                <div class="external-event bg-red">Sleep tight</div>
-                <div class="checkbox">
-                  <label for="drop-remove">
-                    <input type="checkbox" id="drop-remove">
-                    remove after drop
-                  </label>
-                </div>
-
-                <div id = "trashbox">
-                  <button type="button" class="btn btn-primary btn-flat">remove</button>
-                </div>
-              -->
               </div>
             </div>
             <!-- /.box-body -->
@@ -112,7 +74,7 @@
               <div class="input-group" style="width:100%">
                 <div>
                   <label for="newE-startT">시작시간</label>
-                  <input class="form-control timeForm" name='start-insert' type="time" id="newE-startT" value="00:00">
+                  <input class="form-control timeForm forColor panel" name='start-insert' type="time" id="newE-startT" value="00:00">
                 </div>
                 <br><br>
                 <div>
@@ -121,19 +83,37 @@
                 </div>
                 <br><br>
                 <hr class="divArea">
-                <button id="add-new-event" type="button" class="btn btn-primary btn-flat event-maker pull-right">Add</button>
+                <button id="add-new-event" type="button" class="btn btn-primary btn-flat colorButton pull-right">Add</button>
                 <!-- /btn-group -->
-
               </div>
               <!-- /input-group -->
             </div>
           </div>
+
+          <div class="box box-solid">
+            <!--
+            <div class="box-header with-border">
+              <h4 class="box-title">Draggable Events</h4>
+            </div>
+            -->
+            <div class="box-body">
+
+                <label for="beforeSubmit">
+                  <input type="checkbox" id="beforeSubmit">
+                  일정을 등록합니다.
+                </label>
+                <button type="button" class="btn btn-primary btn-flat pull-right">작성완료</button>
+
+            </div>
+            <!-- /.box-body -->
+          </div>
+
         </div>
         <!-- /.col -->
         <div class="col-md-9">
           <div class="box box-primary">
             <div class="box-body no-padding">
-<!-- THE CALENDAR -->
+              <!-- THE CALENDAR -->
               <div id="calendar"></div>
             </div>
             <!-- /.box-body -->
@@ -156,37 +136,34 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="ModalLabel">이벤트생성창.</h5>
         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
+        <h4 class="modal-title">이벤트생성창</h4>
       </div>
-      <div id="varTest"></div>
       <div class="modal-body" id="inputTableForm">
-        <table>
-          <tbody>
-            <tr>
-              <td>시작 시간</td>
-              <td><input class="timeForm" name="startTime" id="modalEStartTime" type="text"></td>
-              <td><input class="timeForm" name="startMin" id="modalEStartMin" type="text"></td>
-            </tr>
-            <tr>
-              <td>종료 시간</td>
-              <td><input class="timeForm" name="endTime" id="modalEEndTime" type="text"></td>
-              <td><input class="timeForm" name="endMin" id="modalEEndMin" type="text"></td>
-            </tr>
-            <tr>
-              <td>배경색</td>
-              <td colspan="2"><input id="modalEBack" type="text"></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="input-group" style="width:100%">
+          <div>
+            <label for="insModal-S">시작시간</label>
+            <input class="form-control timeForm forColor in-modal" name='insModal-S' type="time" id="modal-startT" value="00:00">
+          </div>
+          <br><br>
+          <div>
+            <label for="insModal-E">종료시간</label>
+            <input class="form-control timeForm" name='insModal-S' type="time" id="modal-endT" value="00:00">
+          </div>
+          <br><br>
+          <div>
+            <label for="insModal-P">인원</label>
+            <input class="form-control timeForm" name='insModal-P' type="number" id="modal-numP" value="0">
+          </div>
+          <!-- /btn-group -->
+        </div>
       </div>
       <div class="modal-footer">
-
         <!-- 이벤트 생성, 창닫기 -->
-        <button id="makeEvent" class="btn btn-primary" type="button" data-dismiss="modal">확인</button>
-        <button id="closeEventModal" class="btn btn-primary" type="button" data-dismiss="modal" aria-label="Close">
+        <button id="makeEvent" class="btn btn-primary btn-flat pull-right colorButton" type="button" data-dismiss="modal">확인</button>
+        <button id="closeEventModal" class="btn btn-primary btn-flat pull-left" type="button" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">취소</span>
         </button>
       </div>
@@ -225,13 +202,6 @@ var startTime = new TimeObj();
 var endTime = new TimeObj();
 var state = 0;
 
-$('.timeForm').change(function() {
-  console.log($('input[name="start-insert"]').val())
-  var insStartValue = parseInt($('input[name="start-insert"]').val().slice(0,2));
-  var newColor = colorPicker(insStartValue);
-  $('.event-maker').css({ 'backgroundColor' : newColor, 'borderColor' : newColor });
-})
-
 //이벤트 바 생성 시 drag 가능하게 속성 추가.
 /* initialize the external events
  -----------------------------------------------------------------*/
@@ -243,12 +213,10 @@ function init_events(ele) {
       startTime : $(this).data().startTimeObj,
       endTime :  $(this).data().endTimeObj,
     }
-    console.log('eventObject.startTime')
-    console.log(eventObject.startTime)
+
     // store the Event Object in the DOM element so we can get to it later
     $(this).data('eventObject', eventObject)
-    console.log('eventObject')
-    console.log(eventObject)
+
     // make the event draggable using jQuery UI
     $(this).draggable({
       zIndex        : 1070,
@@ -260,6 +228,42 @@ function init_events(ele) {
 //가져온 이벤트 정보로 이벤트 바 등록 시 drag기능 추가.
 //init_events($('#external-events div.external-event'))
 
+//이벤트 바 등록버튼 색 변화
+var insStartValue = parseInt($('.forColor').val().slice(0,2));
+var newColor = colorPicker(insStartValue);
+$('#add-new-event, #makeEvent').css({
+  'backgroundColor' : newColor,
+  'borderColor' : newColor,
+});
+$(document).on('change','.forColor',function() {
+  var insValue = parseInt($(this).val().slice(0,2));
+  console.log('변화값 감지?')
+  console.log(insValue)
+  var newColor = colorPicker(insValue);
+  console.log($(this).hasClass('in-Modal'))
+
+  if($(this).hasClass('in-modal')) {
+    $('#makeEvent').css({
+      'backgroundColor' : newColor,
+      'borderColor' : newColor,
+    })
+  } else {
+    $('#add-new-event').css({
+      'backgroundColor' : newColor,
+      'borderColor' : newColor,
+    });
+  }
+})
+/*$('.forColor').change(function() {
+  var insStartValue = parseInt($('input[name="start-insert"]').val().slice(0,2));
+  var newColor = colorPicker(insStartValue);
+  $('.colorButton').css({
+    'backgroundColor' : newColor,
+    'borderColor' : newColor,
+  });
+});
+  */
+
 
 //이벤트 바 등록 -------------------------------------------
 $('#add-new-event').click(function (e) {
@@ -268,9 +272,7 @@ $('#add-new-event').click(function (e) {
 
   var new_st = $('#newE-startT').val(); if(new_st == "") { new_st = "00:00"; }
   var new_en = $('#newE-endT').val(); if(new_en == "") { new_en = "00:00"; }
-  console.log('입력시간')
-  console.log(new_st)
-  console.log(new_en)
+
   //생성되는 이벤트 바 title.
   var val = new_st+" ~ "+new_en;
 
@@ -283,32 +285,36 @@ $('#add-new-event').click(function (e) {
   var sumStartTime = new TimeObj(newSTime,newSMin);
   var sumEndTime = new TimeObj(newETime,newEMin);
 
+  //시간에 따른 색상변화
   var colorByTime = colorPicker(newSTime);
 
-  console.log('sumStartTime')
-  console.log(sumStartTime)
-
-  //Create events
+  //dropdown external eventbar 생성.
   var eGroup = $('<div />');
   var event = $('<div />');
   event.css({
-    'background-color': colorByTime, 'border-color': colorByTime, 'color': '#fff',
-    'width': '85%', 'display': 'inline-block',
+    'background-color': colorByTime,
+    'border-color': colorByTime,
+    'color': '#fff',
+    'width': '85%',
+    'display': 'inline-block',
   }).addClass('external-event').html(val)
-  //생성될 바에 data()로 저장.
-  event.data({ startTimeObj : sumStartTime, endTimeObj : sumEndTime, });
+  //생성될 바에 data()로 시간정보 저장.
+  event.data({
+    startTimeObj : sumStartTime,
+    endTimeObj : sumEndTime,
+  });
+  //인원수를 입력할 input[type='number'] 추가
   var eCountSlot = $('<input />');
   eCountSlot
     .attr({ type : 'number', min : '0', step : '1', value : '0', })
     .css({ 'width' : '13%', 'margin' : '0 0 0 2px', }
   );
-  //엘리먼트 구성
+  //DOM 엘리먼트 구성
   eGroup.append(event);
   eGroup.append(eCountSlot);
-  //엘리먼트 삽입
+  //DOM 엘리먼트를 화면에 삽입
   $('#external-events').prepend(eGroup);
-
-  //드래그 기능 추가. 시간정보를 담은 객체를 만들어 삽입.
+  //드래그 기능 추가, 시간정보를 담은 객체를 만들어 추가된 DOM엘리먼트에 삽입.
   init_events(event)
 })
 // ./ 이벤트 바 등록---------------------
@@ -330,10 +336,9 @@ $(function() {
     },
     //Ajax로 가져올 event data
     // events : dummyEvents,
-
+//>-----
     //create
     // select dates.
-    editable : true,
     selectable: true,
     selectHelper: true,
     select: function(start, end) {
@@ -347,10 +352,6 @@ $(function() {
       endDay.month = end.get('month');
       endDay.date = end.get('date');
       endDay.day = end.get('day');
-
-      console.log('셀렉트 확인')
-      console.log(startDay)
-      console.log(endDay)
 
       if($('.external-event').hasClass('clickEvent_Opacity') == true) {
         // 선택된 event bar를 찾아 data를 가져옴.
@@ -410,7 +411,6 @@ $(function() {
         //modal popup.
         $('#selectPopup').modal('show');
       }
-
 
     },
     // End of select dates---------------
@@ -620,35 +620,33 @@ $(document).on('click','.external-event',function() {
 
 // 모달창 이벤트 생성버튼
 $('#makeEvent').click(function() {
-  //modalform의 입력창을 class명으로 찾아 값을 가져오고, int값으로 변환하여 변수에 저장.
-  //Id셀렉터로 선택한 element내 요소를 find()로 조건선택하고
-  // each()로 동일조건의 모든 element를 익명함수로 처리
-  $('#inputTableForm').find('.timeForm').each(function() {
-    // name속성값과 입력된 값을 가져옴
-    var name = $(this).attr('name');
-    var temp = $(this).val();
-    // 가져온 값이 없거나 숫자가 아니면 0을 입력. 있으면 정수형으로 변환.
-    if (temp == "") { temp = 0; }
-    else { temp = parseInt(temp); }
-    // case별로 값을 검사. 범위를 벗어나면 0을 입력.
-    switch (name) {
-      case "startTime":
-        if(checkRange(name,temp) == "time") { startTime.time = temp; break; }
-        else { startTime.time = 0; break; }
-      case "startMin":
-        if(checkRange(name,temp) == "min") { startTime.min = temp; break; }
-        else { startTime.min = 0; break; }
-      case "endTime":
-        if(checkRange(name,temp) == "time") { endTime.time = temp; break; }
-        else { endTime.time = 0; break; }
-      case "endMin":
-        if(checkRange(name,temp) == "min") { endTime.min = temp; break; }
-        else { endTime.min = 0; break; }
-    }
-  });
+  var new_st = $('#modal-startT').val(); if(new_st == "") { new_st = "00:00"; }
+  var new_en = $('#modal-endT').val(); if(new_en == "") { new_en = "00:00"; }
+  var workersForEvent = $('#modal-numP').val();
+    if(workersForEvent == "") { workersForEvent = "00:00"; }
 
+    console.log('모달 시간값')
+    console.log(new_st)
+
+  //정수형으로 시간정보 변환
+  var newSTime = parseInt(new_st.slice(0,2));
+  var newSMin = parseInt(new_st.slice(3));
+  var newETime = parseInt(new_en.slice(0,2));
+  var newEMin = parseInt(new_en.slice(3));
+
+  //시간정보를 전역변수에 저장.
+  startTime.time = newSTime;
+  startTime.min = newSMin;
+  endTime.time = newETime;
+  endTime.min = newEMin;
+
+  //시간에 따른 색상선택
+  var colorByTime = colorPicker(newSTime);
+
+
+//**************중복부분.
 //수정사항 : 동일 id 존재여부 확인하여 없는경우만 생성.
-  var newEventObj = createObj (startDay,endDay,startTime,endTime);
+  var newEventObj = createObj (startDay,endDay,startTime,endTime,workersForEvent);
   console.log('새로 생성된 obj배열: ');
   console.log(newEventObj);
 

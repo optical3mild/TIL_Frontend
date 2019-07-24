@@ -93,7 +93,7 @@ function divideRange (start, end, start_T, end_T) {
   return newDayListArray;
 };
 
-// 입력된 시간정보 값의 범위를 확인.
+/*// 입력된 시간정보 값의 범위를 확인.
 function checkRange(eleName,value) {
   if ((eleName.indexOf("Time") != -1) && (value >= 0) && (value <= 23)) {
     return "time";
@@ -102,7 +102,7 @@ function checkRange(eleName,value) {
   } else {
     return "outOfRange";
   }
-};
+};*/
 
 // //Parsing 함수: 관리객체 --> 이벤트객체;
 function convertToEventObj(antObj) {
