@@ -4,7 +4,7 @@
 ### 1. ajaxtest : Dynamic Web Project + Ajax 게시판 연동연습 (7.2 ~ 7.6)
 
 
-### 2. calendartest : fullCalendar app customize (7.10 ~ 7.14)
+### 2. calendartest : fullCalendar app customize (7.10 ~ )
 > ###### 활성화/수정된 기능
 >	###### 1. Ajax연동을 위해 이벤트 객체의 정보를 따로 관리 
 >	###### 2. 여러 이벤트 동시생성 (선택된 기간을 나누어 동일시간대 이벤트 동시생성)
