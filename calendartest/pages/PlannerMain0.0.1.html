@@ -64,23 +64,19 @@
           <!-- /. box -->
           <div class="box box-solid">
             <div class="box-header with-border">
-              <h3 class="box-title">Create Event</h3>
+              <h3 class="box-title">Create Monthly Plan</h3>
             </div>
             <div class="box-body">
 
               <div class="input-group" style="width:100%">
                 <div>
-                  <label for="newE-startT">시작시간</label>
-                  <input class="form-control timeForm forColor panel" name='start-insert' type="time" id="newE-startT" value="00:00">
+                  <label for="monthForPlan">연월선택</label>
+                  <input class="form-control forColor panel" name='monthForPlan' type="month" id="monthForPlan">
                 </div>
                 <br><br>
-                <div>
-                  <label for="newE-endT">종료시간</label>
-                  <input class="form-control timeForm" name='end-insert' type="time" id="newE-endT" value="00:00">
-                </div>
-                <br><br>
+
                 <hr class="divArea">
-                <button id="add-new-event" type="button" class="btn btn-primary btn-flat colorButton pull-right">Add</button>
+                <button id="createMonthBar" type="button" class="btn btn-primary btn-flat colorButton pull-right">Add</button>
                 <!-- /btn-group -->
               </div>
               <!-- /input-group -->
@@ -185,7 +181,78 @@
 <script src="../resources/bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
 <!-- Page specific script -->
 <script>
-var userId = "testAdmin";
+//Create Month Bar
+//1. 연월선택 inputbox
+var nowDate = new Date();
+var nowYear = nowDate.getFullYear();
+var nowMonth = nowDate.getMonth();
+var calMonth;
+if(nowMonth<10) {
+  calMonth =  "0" + (nowMonth+1);
+} else {
+  calMonth = nowMonth + 1;
+}
+var defaultYMValue = nowYear+"-"+calMonth;
+console.log('1.현재연월')
+console.log("\""+ nowYear+"-"+calMonth+"\"");
+$('#monthForPlan').val(defaultYMValue);
+
+//2. bar추가
+//이벤트 바 등록
+$('#createMonthBar').click(function () {
+  //새로운 이벤트 시간입력 --> title로 변경.
+  var newEventYM = $('#monthForPlan').val();
+  if(newEventYM == "") { new_st = defaultYMValue; }
+
+  //생성되는 이벤트 바 title.
+  var val = newEventYM;
+  var planYear = newEventYM.slice(0,5);
+  var planMonth = newEventYM.slice(6);
+
+  //시간에 따른 색상변화
+  var monthBarColor = '#26678d'; //for test.
+
+  //dropdown external eventbar 생성.
+  var monthEventBar = $('<div />');
+  monthEventBar.css({
+    'background-color': monthBarColor,
+    'border-color': monthBarColor,
+    'color': '#fff',
+    'width': '100%',
+    'display': 'inline-block',
+  }).addClass('external-event').html(val)
+  //생성될 바에 data()로 시간정보 저장.
+  monthEventBar.data({
+    planYear : planYear,
+    planMonth : planMonth,
+  });
+
+  //DOM 엘리먼트를 화면에 삽입
+  $('#external-events').prepend(eGroup);
+
+})
+// ./ End of 이벤트 바 등록
+
+
+//external eventbar 선택기능
+$(document).on('click','.external-event',function() {
+  alert('클릭')
+  console.log($(this));
+  $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
+  var checkSelect = $(this).hasClass('clickEvent_Opacity');
+  console.log(checkSelect)
+  if(checkSelect == true) {
+    alert("끔")
+    $(this).removeClass('clickEvent_Opacity')
+  } else if(checkSelect == false) {
+    alert("켬")
+    $(this).addClass('clickEvent_Opacity')
+  }
+})
+
+
+var selectedMonth;
+
 //DayObj, TimeObj : 프로토타입 객체.
 var startDay = new DayObj();
 var endDay = new DayObj();
@@ -370,6 +437,7 @@ $(function() {
       week : 'week',
       day  : 'day'
     },
+    defaultDate : selectedMonth,
 //>>//Ajax로 가져올 event data
     events : initialData,
 
@@ -469,7 +537,11 @@ $(function() {
   });
 });
 // ./ End of fullCalendar 초기화 -------------------------------------
-
+var targetDate = new Date(2019,09,01);
+$('#calendar').fullCalendar('gotoDate', targetDate )
+$('#submitPlan').click(function() {
+  alert("ajax 송신")
+});
 
 
 // 모달창 이벤트 생성버튼
@@ -564,9 +636,7 @@ function plannerRenderingProcess(sd,ed,st,et,wfe) {
   */
 }
 // ./ End of Rendering process
-$('#submitPlan').click(function() {
-  alert("ajax 송신")
-});
+
 </script>
 </body>
 </html>
