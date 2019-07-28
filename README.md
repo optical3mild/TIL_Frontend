@@ -16,7 +16,8 @@
 > ##### 7.24 : Planner ver 1.0.2 ( 외부 이벤트바 선택기능과 셀렉트 기능 연동, 선택상태에서 멀티셀렉트 기능 생성. )
 > ##### 7.25 : Planner ver 1.0.2 ( modal창 수정, 기능 세부조정과 코드 병합. 
 > #####		-> ajax, 캘린더에 인원수 표시기능, 변화감지 후 추가 렌더링 기능 필요.)
-> ##### 7.25 : Planner ver 1.0.3 ( data 저장방법 변환하여 ajax 기능 구현 개발 시작. )
+> ##### 7.25 : Planner ver 1.0.3 ( 수정/생성화면. data 저장방법 변환하여 ajax 기능 구현 개발 시작. )
+> ##### 7.28 : PlannerMain0.0.2 작업 중.( 월별일정 편람, 직원별 일정확인, 수정/생성화면으로 연결기능 )
 
 ### 3. antPeopleViewPart : antPeopleProject에 사용할 view 개발관련 (7.14~)
 > ###### 7.14 : 초기 page레이아웃 업데이트 (index, calendar, top, nav, login) 

@@ -107,7 +107,7 @@ function convertToEventObj(antObj) {
 
   var eventForRendering = {
     id : antObj.id,
-    title : antObj.title,
+    title : antObj.id, //plannerMain0.0.2에서 바뀜. remakeDisplayedEvents()함수참조.
     start : new Date(syInfo,smInfo,sdInfo,sTInfo,sMInfo),
     end : new Date(eyInfo,emInfo,edInfo,eTInfo,eMInfo),
     allDay : false,
