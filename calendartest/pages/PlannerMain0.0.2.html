@@ -36,9 +36,24 @@
     border-radius: 3px;
     /*cursor: move;*/
   }
+  .selectStaffBar_Opacity {
+    opacity : 0.5;
+  }
   .staffBar:hover {
     box-shadow: inset 0 0 90px rgba(0,0,0,0.2);
   }
+/*>>190729*/
+  .selectedEvent {  /* 셀렉트 형태 조정할 것. */
+    border: 1px dotted;
+    /*background: linear-gradient(-45deg, white 50%, grey 50%);*/
+    font-weight: bold;
+    box-shadow: inset 0 0 90px rgba(0,0,0,0.2);
+  }
+
+  .fc-prev-button, .fc-next-button, .fc-today-button {
+    visibility  : hidden;
+  }
+
   </style>
 
 </head>
@@ -95,7 +110,7 @@
             </div>
           </div>
 
-          <div class="box box-solid">
+          <div class="box box-solid" id="individual-box">
             <div class="box-header with-border">
               <h4 class="box-title">StaffList</h4>
             </div>
@@ -196,11 +211,46 @@
 <script>
 var userId = 'testAdmin';
 // 페이지 로드 시 받을 수신받을 데이터 형태. --> '연월' : 수정가능여부
+var nowDate = new Date();
+
 //var gotList = "${monthList}" //더미로 확인필요...
-var gotList = {
+//현재 달을 확인하여 현재달 포함 이전은 수정불가로 List객체 조정.
+var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
+function convertToMonthObj(originDate, array){
+  var result = {};
+  var year = ""+originDate.getFullYear();
+  console.log("year: " + year)
+  var month = ""+originDate.getMonth();
+  if(month<10) {
+    month = "0"+month;
+  }
+  console.log("month: " + month)
+  var now =  year.slice(2) + month;
+  for(var i=0; i<array.length; i++) {
+    var thisIndex = array[i];
+    console.log('thisIndex')
+    console.log(thisIndex)
+    var nowValue = parseInt(now)
+    console.log('now')
+    console.log(nowValue)
+    console.log(now)
+
+    if(parseInt(now) >= parseInt(thisIndex)) {
+      result[""+thisIndex+""] = false;
+    } else if(parseInt(now) < parseInt(thisIndex)) {
+      result[""+thisIndex+""] = true;
+    }
+  }
+  return result;
+}
+var convertedList = convertToMonthObj(nowDate,gotList);
+console.log('convertedList');
+console.log(convertedList);
+/*var gotList = {
   '1907' : true, '1905' : false, '1906' : true,
   '1909' : false, '1900' : true , '1911' : false
 }; //더미 목록, 월정보는 월 인덱스 값.
+*/
 // receivedDummy : 월별목록 선택시 수신받을 데이터 형태.
 var receivedDummy = {
   '1906' : {
@@ -263,7 +313,6 @@ var receivedDummy = {
 
 //Create Month Bar
 //1. 연월선택 inputbox : 목록이 없을 때 현재연월로 불러오도록 초기값 지정.
-var nowDate = new Date();
 var nowYear = nowDate.getFullYear();
 var nowMonth = nowDate.getMonth();
 var calMonth;
@@ -279,10 +328,12 @@ $('#monthForPlan').val(defaultYMValue);
 var monthlyMenu = [];
 var targetDiv = '#external-events'
 var barClass = 'external-event'
-var tempColor = '#26678d'
+//var tempColor = '#26678d'
 //페이지 로딩 시 목록을 수신받아 값이 있는경우 순차적으로 배열에 삽입.
-if( Object.keys(gotList).length > 0 ) {
-  var afterConvert = convertForMonthlyMenuList(gotList);
+if( Object.keys(convertedList).length > 0 ) {
+  var afterConvert = convertForMonthlyMenuList(convertedList);
+  console.log('convertedList');
+  console.log(convertedList);
   $.each(afterConvert, function(key, value){
     monthlyMenu.push(key);
   });
@@ -293,6 +344,10 @@ if( Object.keys(gotList).length > 0 ) {
   for(var i = 0; i<monthlyMenu.length; i++) {
     var index = monthlyMenu[i];
     var infObj = afterConvert[""+index+""];
+    var tempColor = 'rgb(60, 141, 188)'
+    if(infObj.mendable == false) {
+      tempColor = 'rgb(120, 136, 168)'
+    }
     drawMenuBar(monthlyMenu[i], infObj, targetDiv, barClass, tempColor);
   }
 }
@@ -378,6 +433,10 @@ $(document).on('change','#monthForPlan',function() {
   var targetBtn = $('#plannerButton');
   var targetBtnText = targetBtn.text();
   var setVal = $(this).val();
+  var dateforCalendar = convertToMomentDateObj(setVal);
+  console.log('월정보')
+  console.log(dateforCalendar)
+  $('#calendar').fullCalendar('gotoDate',dateforCalendar);
   //버튼 초기화
   targetBtn.attr('disabled', false);
   if(targetBtnText == "생성") {
@@ -390,12 +449,25 @@ $(document).on('change','#monthForPlan',function() {
   }
 });
 
+//역파싱 : 입력값을 date객체로.
+function convertToMomentDateObj(val) {
+  var yearP = parseInt(val.slice(0,4));
+  var monthP = parseInt(val.slice(5))-1;
+  var newDateObj = new Date(yearP,monthP);
+  return newDateObj;
+}
+
 //3. external eventbar 선택기능 + 버튼 형상 전환 + 캘린더에 표시될 내용 수신.
 $(document).on('click','.external-event',function() {
+  $('#individual-box').css({'display':'none'});
+  $("#individual-events").empty();
   $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
   var checkSelect = $(this).hasClass('clickEvent_Opacity');
   var targetBtn = $('#plannerButton');
+  $('#calendar').fullCalendar('removeEvents');
+
   if(checkSelect == true) {
+    $('#individual-box').css({'display':'none'});
     $(this).removeClass('clickEvent_Opacity');
     targetBtn.removeClass('modifyPlanner')
     targetBtn.addClass('createPlanner').text('생성');
@@ -404,7 +476,11 @@ $(document).on('click','.external-event',function() {
     insertMonthValue(monthlyMenu);
     //입력창 활성화.
     $('#monthForPlan').attr('disabled', false);
-    //
+    //입력창 값을 읽어 캘린더 화면 위치 조정.
+    var inputValue = $('#monthForPlan').val();
+    var dateforCalendar = convertToMomentDateObj(inputValue);
+    $('#calendar').fullCalendar('gotoDate',dateforCalendar);
+
   } else if(checkSelect == false) {
     $(this).addClass('clickEvent_Opacity');
     targetBtn.removeClass('createPlanner')
@@ -412,6 +488,9 @@ $(document).on('click','.external-event',function() {
     // 입력창 값을 선택한 바의 값으로 변화 후 입력창 비활성화.
     var thisMonth = $(this).data().title;
     $('#monthForPlan').val(thisMonth).attr('disabled', true);
+    //변화된 입력창 값을 읽어 캘린더 화면도 이동.
+    var dateforCalendar = convertToMomentDateObj(thisMonth);
+    $('#calendar').fullCalendar('gotoDate',dateforCalendar);
     //calender rendering 작업, 화면을 해당월로 표기,
     //a. 수정가능 여부 확인하여 불가한 경우 버튼 비활성화. --> 객체에 넣는것으로...
     targetBtn.attr('disabled', false);
@@ -431,16 +510,8 @@ $(document).on('click','.external-event',function() {
     for(var key in receivedData) {
       if(key == targetMonth) {
         rEventList = receivedData[""+key+""];
-        console.log('복제한 객체리스트');
-        console.log(rEventList);
       } else {
-        console.log("key")
-        console.log(key)
-        console.log("receivedData")
-        console.log(receivedData[""+key+""])
         individualList[""+key+""] = receivedData[""+key+""];
-        console.log("individualList_" + key)
-        console.log(individualList)
       }
     }
     //c. 받아온 이벤트 데이터를 화면에 표시한다.
@@ -453,119 +524,35 @@ $(document).on('click','.external-event',function() {
     //d. 화면에 표시된 이벤트의 title을 숨기고, 밖으로 보여질 엘리먼트를 추가.
     remakeDisplayedEvents(rEventList);
 
-
-
-    /*for(var key in rEventList) {
-      var tarEvent = rEventList[""+key+""];  // obj 선택
-      var tarDate = tarEvent.startDate; //6자리 숫자, month정보는 인덱스값.
-      var tarTitle = tarEvent.title;
-      var tarManP = tarEvent.manPower;
-      var selectedEvent = findElementByDate(tarTitle, tarDate); //해당날짜의 이벤트를 반환.
-      console.log('selectedEvent')
-      console.log(selectedEvent)
-
-      addMpInfo(tarManP,selectedEvent)
-    }
-    //이벤트에 추가/삭제
-    function addMpInfo(manPower, selEvent) {
-      var mpInfoEle = $('<span />');
-      mpInfoEle.css({
-        'background-color': 'white',
-        'border-color': 'grey',
-        'color': 'black',
-
-        'display': 'inline-block',
-      }).html(manPower);
-      selEvent.find('.fc-content').prepend(mpInfoEle);
-    }
-    */
-/*
-    //렌더링된 이벤트 중 일치하는 이벤트를 반환.
-    function findElementByDate(title, date) {
-      var calMonth = parseInt(date.slice(2,4))+1;
-      if(calMonth < 10) { calMonth = "0"+calMonth;
-      } else { calMonth = ""+calMonth; }
-      var calYear = "20"+date.slice(0,2);
-      var calDate = date.slice(4);
-      //날짜정보 조합.
-      var calLocDate = calYear +"-"+calMonth+"-"+calDate; //table thead의 td data-date 속성값.
-      var elist = $('.fc-event-container')
-      console.log('elist')
-      console.log(elist)
-
-      //날짜정보를 바탕으로 table의 기준점을 검색.
-      var tarCalHead = $("td[data-date='"+ calLocDate +"']")
-      console.log('tarCalHead')
-      console.log(tarCalHead)
-      console.log(tarCalHead.attr('data-date'))
-      //기준점의 컬럼값을 구함.
-      var tarHeadIndex = tarCalHead.index();
-      console.log('컬럼')
-      console.log(tarHeadIndex)
-
-      $.each(elist, function(index, targetE){
-        //이벤트의 행과 열의 위치가 해당 날짜에 해당될 때, title을 비교.
-        //targetE
-        //if(targetE) {
-
-      //  }
-      });
-
-
-
-      //거슬러 올라가 table에서 검색
-      var tarCalBody = tarCalHead.closest('thead').next('tbody');
-      console.log(tarCalBody);
-      var selected = tarCalBody.find('td');
-      console.log('selected')
-      console.log(selected)
-      /*
-      $.each(targetList, function(index, ele){
-        console.log(ele.hasChildNodes())
-        if(ele.hasChildNodes()){
-          console.log('ele')
-          console.log(ele)
-
-          var eventTitle = ele.getElementsByClassName('.fc-title').text();
-          if(eventTitle == title) {
-            return ele;
-          }
-        }
-      })
-      */
-/*
-      for(var i=0; i<targetList.length; i++){
-        console.log(targetList[i])
-
-        if(targetList[""+i+""].hasClass('fc-event-container')) {
-          var eventTitle = $(""+targetList[i]+"").find('.fc-title').text();
-          if(eventTitle == title) {
-            return targetList[i];
-          }
-        }
-      }
-
-    }
-*/
-
     //e. 받아온 이벤트 데이터를 직원별로 볼 수 있도록 목록을 생성한다.
     var staffListDiv = '#individual-events'
     var staffBarClass = 'staffBar'
-    var staffColor = '#7dda60'
-    for(var key in individualList) {
-      var value = individualList[""+key+""]
-      drawMenuBar(key, value, staffListDiv, staffBarClass, staffColor);
+    var staffColor = 'rgb(60, 141, 188)'
+    console.log('인덱스')
+    console.log(receivedData.hasOwnProperty($(this).data().monthIndex))
+    console.log(receivedData)
+
+    if(receivedData.hasOwnProperty($(this).data().monthIndex)){
+      console.log('indlist')
+      console.log(individualList)
+      if(Object.keys(individualList).length > 0) {
+        $('#individual-box').css({'display':'block'});
+        for(var key in individualList) {
+          var value = individualList[""+key+""]
+          drawMenuBar(key, value, staffListDiv, staffBarClass, staffColor);
+        }
+      }
     }
   }
 })
+
 //b. 월별 이벤트 데이터를 받아오는 함수.
-function getMonthlyPlan(/*userInfo,*/ inputVal) {
+function getMonthlyPlan(inputVal) {
   var infoForSend = {  //요청권한확인, 어느 점포의 정보를 보낼지 결정할 기초정보.
-    //user_Id : userInfo,
     month : inputVal,
   }
   $.ajax({
-		url : 'monthlyPlanView',
+		url : 'monthplan',
 		method : 'post',
     // data : 서버로 보낼 데이터 - string or json(key/value)
 		data : targetMonthInfo,
@@ -607,26 +594,75 @@ function remakeDisplayedEvents(antPeopleObjList){
 
 
 //4. 직원목록 버튼 : 선택 시 캘린더 이벤트에 표시.
-
-
-//5. 수정/등록버튼 경로변경
-$('#plannerButton').click(function() {
-  if($('#plannerButton').hasClass('createPlanner') == true) {
-
-  } else if($('#plannerButton').hasClass('modifyPlanner') == true) {
-    console.log('누름')
-    var sendYear = $('.clickEvent_Opacity').data().planYear;
-    var sendMonth = $('.clickEvent_Opacity').data().planMonth;
-    console.log(sendYear);
-    console.log(sendMonth)
-    //연도, 월 전송 --> 이벤트 값을 받아옴.
-    //document.location.href = ;
+$(document).on('click','.staffBar',function() {
+  $('.selectStaffBar_Opacity').not($(this)).removeClass('selectStaffBar_Opacity');
+  var checkSelect = $(this).hasClass('selectStaffBar_Opacity');
+  var targetIdList = $(this).data()
+  console.log(targetIdList)
+  //클릭 시 선택 초기화.
+  $('.selectedEvent').removeClass('selectedEvent');
+  if(checkSelect == true) {
+    $(this).removeClass('selectStaffBar_Opacity');
+  } else if(checkSelect == false) {
+    $(this).addClass('selectStaffBar_Opacity');
+    //calendar에서 이벤트의 id와 일치하는 경우 효과부여. 그외는 효과지움.
+    for(var key in targetIdList) {
+      var targetId = targetIdList[""+key+""];
+      console.log('tag')
+      console.log($('span:contains("'+targetId+'")'))
+      $('span:contains("'+targetId+'")').parent().addClass('selectedEvent');
+    }
   }
 })
 
 
+//5. 수정/등록버튼
+// 경우마다 수정과 등록페이지로 연결.
+$('#plannerButton').click(function() {
+  var target = $('monthForPlan').val();
+  if($('#plannerButton').hasClass('createPlanner') == true) {
+    var planName = 'insertplan';
+    //direction(planName,target);
+    console.log("ajax : 생성")
+  } else if($('#plannerButton').hasClass('modifyPlanner') == true) {
+    var planName = 'updateplan';
+    //direction(planName,target);
+    console.log("ajax : 수정")
+  }
+})
 
-var selectedMonth;
+function direction(planName,target) {
+  //url 지정.
+  var modifyPlan = 'insertplan' //수정페이지 경로
+  var createPlan = 'updateplan' //생성페이지 경로
+  var selectedUrl;
+  if(planName == modifyPlan) {
+    selectedUrl = modifyPlan;
+  } else if(planName == createPlan){
+    selectedUrl = createPlan;
+  };
+  $.ajax({
+		url : selectedUrl,
+		method : 'post',
+    // data : 서버로 보낼 데이터 - string or json(key/value)
+		data : target,
+    // contentType : 서버로 보낼 데이터의 타입.
+    contentType: 'text',
+    // dataType : 서버로 부터 수신받을 데이터 타입.
+		dataType : 'text',
+    async : false,
+		error : function(response) {
+			alert("통신실패, response: " + response);
+		},
+		success : function(response) {
+			alert("통신성공, response: " + response);
+			document.location.href = response;
+		}
+	});
+}
+
+//입력창 값을 읽어 초기 화면위치 표시.
+var selectedMonth = $('#monthForPlan').val();
 
 //DayObj, TimeObj : 프로토타입 객체.
 var startDay = new DayObj();
@@ -646,30 +682,6 @@ var emptyObj = {}
 //  $.extend(emptyObj, gotData)
 //}
 
-/*{
-  testAdmin_19061501001906160623 : {
-    id : 'testAdmin_19061501001906160623',
-    title : '1111111',
-    startDate : '190615',
-    endDate :'190616',
-    startTime : '0100',
-    endTime : '0623',
-    userId : 'testAdmin',
-    state : '0',
-    manPower : '10',
-  },
-  testAdmin_190615010019999160623 : {
-    id : 'testAdmin_190615010019999160623',
-    title : '1111111',
-    startDate : '190615',
-    endDate :'190616',
-    startTime : '0100',
-    endTime : '0623',
-    userId : 'testAdmin',
-    state : '0',
-    manPower : '10',
-  }
-};*/
 
 $('#calendar').data('eventList',emptyObj);
 var dataLocation = $('#calendar').data('eventList');
@@ -683,8 +695,11 @@ $.each(dataLocation, function(id, obj) {
   console.log(obj)
   initialData.push(convertToEventObj(obj))
 
-  //$('#calendar').fullCalendar('renderEvent', obj, true);
+  $('#calendar').fullCalendar('renderEvent', obj, true);
 })
+
+//최초페이지 로딩시 숨김으로 초기화.
+$('#individual-box').css({'display':'none'});
 
 
 //fullCalendar 로드, 초기화
@@ -704,204 +719,37 @@ $(function() {
     defaultDate : selectedMonth,
 //>>//Ajax로 가져올 event data
     events : initialData,
-
-    //create
-    // select dates.
-    selectable: true,
-    selectHelper: true,
-    select: function(start, end) {
-      // 선택한 연도,월,일을 객체에 저장. get()--> moments.js의 function.
-      startDay.year = start.get('year');
-      startDay.month = start.get('month');
-      startDay.date = start.get('date');
-      startDay.day = start.get('day');
-      endDay.year = end.get('year');
-      endDay.month = end.get('month');
-      endDay.date = end.get('date');
-      endDay.day = end.get('day');
-
-      if($('.external-event').hasClass('clickEvent_Opacity') == true) {
-        // 선택된 event bar를 찾아 data를 가져옴.
-        var selectEventBar = $('.clickEvent_Opacity')
-        var workersForEvent = selectEventBar.siblings('input[type="number"]').val();
-
-        //엘리먼트에 저장된 시간정보를 읽어 전역변수에 시간정보 저장.
-        var selectEBarData = selectEventBar.data();
-        startTime.time = selectEBarData.startTimeObj.time;
-        startTime.min = selectEBarData.startTimeObj.min;
-        endTime.time = selectEBarData.endTimeObj.time;
-        endTime.min = selectEBarData.endTimeObj.min;
-
-        //rendering, DOM Element에 data로 객체 저장.
-        plannerRenderingProcess(startDay,endDay,startTime,endTime,workersForEvent,state);
-
-      } else {
-        //modal popup.
-        $('#selectPopup').modal('show');
-      }
-
-    },
-    // End of select dates---------------
-
-    //drag and drop 활성화 필요.
-    droppable : true,
-    drop      : function (date, allDay, element) { // this function is called when something is dropped
-      // retrieve the dropped element's stored Event Object
-      var originalEventObject = $(this).data('eventObject')
-      // bar의 input값을 읽어옴
-      var workersForEvent = $(this).siblings('input[type="number"]').val()
-      // we need to copy it, so that multiple events don't have a reference to the same object
-      var copiedEventObject = $.extend({}, originalEventObject)
-
-      //시간정의 : drop된 날짜값을 받음.
-      var sYear = date.get('year');
-      var sMonth = date.get('month');
-      var sDate = date.get('date');
-      var sDay = date.get('day');
-
-      //전역변수에 날짜정보 저장. --> drop시 시작날과 종료일은 동일하게 입력
-      startDay.year = date.get('year');
-      startDay.month = date.get('month');
-      startDay.date = date.get('date');
-      startDay.day = date.get('day');
-
-      //drop 시 하루를 더해 종료날짜를 정함.
-      var endInfo = date.add(1, 'days')
-      endDay.year = endInfo.get('year');
-      endDay.month = endInfo.get('month');
-      endDay.date = endInfo.get('date');
-      endDay.day = endInfo.get('day');
-
-      //객체로 저장된 시간정보를 전역변수에 저장.
-      startTime.time = copiedEventObject.startTime.time;
-      startTime.min = copiedEventObject.startTime.min;
-      endTime.time = copiedEventObject.endTime.time;
-      endTime.min = copiedEventObject.endTime.min;
-
-      plannerRenderingProcess(startDay,endDay,startTime,endTime,workersForEvent,state);
-    },
-
-    //delete
-    eventClick: function (calEvent, jsEvent, view) {
-      //운영계획 이벤트의 경우 : 그 자리에 개인 일정 생성.
-      //개인일정의 경우 : 삭제 후 운영계획 이벤트 재생성.
-
-      //calender에 보이는 부분과 내장객체 삭제
-      $('#calendar').fullCalendar('removeEvents', calEvent.id);
-      console.log('[삭제과정]');
-      console.log('1.내장 이벤트:');
-      console.log(calEvent.id);
-      console.log('2.관리 이벤트:');
-      console.log(dataLocation[""+calEvent.id+""]);
-      //var dataLocation = $('#calendar').data('eventList') 으로 저장된 위치에서 id와 일치하는 값 삭제.
-      delete dataLocation[""+calEvent.id+""];
-      console.log('3.삭제 후 모든 event:');
-      console.log(dataLocation);
-    },
   });
 });
 // ./ End of fullCalendar 초기화 -------------------------------------
 
 
-//var targetDate = new Date(2019,09,01);
-//$('#calendar').fullCalendar('gotoDate', targetDate )
-//$('#submitPlan').click(function() {
-//  alert("ajax 송신")
-//});
-
-
-// 모달창 이벤트 생성버튼
-$('#makeEvent').click(function() {
-  var new_st = $('#modal-startT').val(); if(new_st == "") { new_st = "00:00"; }
-  var new_en = $('#modal-endT').val(); if(new_en == "") { new_en = "00:00"; }
-  var workersForEvent = $('#modal-numP').val();
-  if(workersForEvent == "") { workersForEvent = "00:00"; }
-
-  //정수형으로 시간정보 변환
-  var newSTime = parseInt(new_st.slice(0,2));
-  var newSMin = parseInt(new_st.slice(3));
-  var newETime = parseInt(new_en.slice(0,2));
-  var newEMin = parseInt(new_en.slice(3));
-
-  //시간정보를 전역변수에 저장.
-  startTime.time = newSTime;
-  startTime.min = newSMin;
-  endTime.time = newETime;
-  endTime.min = newEMin;
-
-  plannerRenderingProcess(startDay,endDay,startTime,endTime,workersForEvent,state);
+/* //버튼 사용안함.
+// 왼쪽 버튼을 클릭하였을 경우
+$(document).on('click','button.fc-prev-button', function() {
+  var date = $("#calendar").fullCalendar("getDate");
+  changeDateInputArea(date);
 });
-// ./ End Of Modal창 이벤트 생성버튼
-
-// Rendering process
-function plannerRenderingProcess(sd,ed,st,et,wfe) {
-  var newEventObj = createObj (sd,ed,st,et,wfe);
-  console.log('[생성과정]')
-  console.log('1.새로 생성된 obj배열:');
-  console.log(newEventObj);
-
-  var alreadyExistDatas = [];
-  var alertMsg = "아래의 일정은 이미 존재합니다.\n";
-  //순차적으로 rendering
-  for(var i=0; i<newEventObj.length; i++) {
-
-    //>> 1.0.3 data관리 방법 수정...
-    //var dataLocation = $('#calendar').data('eventList');
-    var objId = newEventObj[i].id
-    //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
-    if(dataLocation[""+objId+""] != null) {
-      alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
-                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
-    } else {
-      //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
-      var convertedEvent = convertToEventObj(newEventObj[i]);
-      //Rendering
-      $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
-
-//>>  //data 저장 : calendar DOM엘리먼트에 data()로 저장된 eventList 객체 내.
-      dataLocation[""+objId+""] = newEventObj[i];
-
-      console.log('2.생성한 event: ');
-      console.log(dataLocation[""+objId+""]);
-      console.log('3.모든 event:');
-      console.log($('#calendar').data('eventList'));
-
-      //$('#calendar').data(newEventObj[i].id, newEventObj[i]);
-      //console.log('2.생성한 event: ');
-      //console.log($('#calendar').data(newEventObj[i].id));
-      //console.log('3.모든 event:');
-      //console.log($('#calendar').data());
-    }
+// 오른쪽 버튼을 클릭하였을 경우
+$(document).on('click','button.fc-next-button', function() {
+  var date = $("#calendar").fullCalendar("getDate");
+  changeDateInputArea(date);
+});
+// 좌우 버튼 클릭시 input ele의 값을 바꿈.
+function changeDateInputArea(date) {
+  var yearP = date.get('year');
+  var monthP = date.get('month')+1;
+  if(monthP < 10) {
+    monthP = "0" + monthP
   }
-  //경고창 팝업.
-  if(alreadyExistDatas.length>0) {
-    for(var i=0; i<alreadyExistDatas.length; i++) {
-      console.log(alreadyExistDatas[i]);
-      alertMsg = alertMsg + alreadyExistDatas[i] + "\n";
-    }
-    alert(alertMsg);
-    console.log('4. 중복제외 등록 후 모든 event:');
-    console.log($('#calendar').data('eventList'));
-  }
-
-  /*
-  //캘린더에서 날짜로 위치검색
-  function calVal(num) {
-    if(num<10) {
-      return "0" + num;
-    } else {
-      return num;
-    }
-  }
-  var selectByDate = sYear+'-'+calVal(sMonth+1)+'-'+calVal(sDate);
-  console.log('합성날짜')
-  console.log(selectByDate)
-  var originPoint = $('.fc-day-top[data-date='+selectByDate+']').index()
-  console.log('드롭한 이벤트의 캘린더 행 내 위치')
-  console.log(originPoint)
-  */
+  var forInput = yearP +"-"+ monthP;
+  $("#monthForPlan").val(forInput);
 }
-// ./ End of Rendering process
+*/
+
+//>>>추가사항
+//내용이 없는 경우, staffListDiv 숨김
+//캘린더 상단 버튼 누를때마다 가진 정보를 바탕으로 다시 화면을 렌더링.
 
 </script>
 </body>
