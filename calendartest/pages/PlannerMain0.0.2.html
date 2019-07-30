@@ -24,37 +24,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
   <!-- external eventbar style -->
-  <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.2.css">
-
-  <style>
-  .staffBar {
-    padding: 5px 10px;
-    font-weight: bold;
-    margin-bottom: 4px;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    border-radius: 3px;
-    /*cursor: move;*/
-  }
-  .selectStaffBar_Opacity {
-    opacity : 0.5;
-  }
-  .staffBar:hover {
-    box-shadow: inset 0 0 90px rgba(0,0,0,0.2);
-  }
-/*>>190729*/
-  .selectedEvent {  /* 셀렉트 형태 조정할 것. */
-    border: 1px dotted;
-    /*background: linear-gradient(-45deg, white 50%, grey 50%);*/
-    font-weight: bold;
-    box-shadow: inset 0 0 90px rgba(0,0,0,0.2);
-  }
-
-  .fc-prev-button, .fc-next-button, .fc-today-button {
-    visibility  : hidden;
-  }
-
-  </style>
+  <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.3.css">
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -146,46 +116,6 @@
 </div>
 <!-- ./wrapper -->
 
-<!-- Input Modal Form  -->
-<div class="modal fade" id="selectPopup" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-        <h4 class="modal-title">이벤트생성창</h4>
-      </div>
-      <div class="modal-body" id="inputTableForm">
-        <div class="input-group" style="width:100%">
-          <div>
-            <label for="insModal-S">시작시간</label>
-            <input class="form-control timeForm forColor in-modal" name='insModal-S' type="time" id="modal-startT" value="00:00">
-          </div>
-          <br><br>
-          <div>
-            <label for="insModal-E">종료시간</label>
-            <input class="form-control timeForm" name='insModal-S' type="time" id="modal-endT" value="00:00">
-          </div>
-          <br><br>
-          <div>
-            <label for="insModal-P">인원</label>
-            <input class="form-control timeForm" name='insModal-P' type="number" id="modal-numP" value="0">
-          </div>
-          <!-- /btn-group -->
-        </div>
-      </div>
-      <div class="modal-footer">
-        <!-- 이벤트 생성, 창닫기 -->
-        <button id="makeEvent" class="btn btn-primary btn-flat pull-right colorButton" type="button" data-dismiss="modal">확인</button>
-        <button id="closeEventModal" class="btn btn-primary btn-flat pull-left" type="button" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">취소</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- jQuery 3 -->
 <script src="../resources/bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
@@ -198,8 +128,7 @@
 <script src="../resources/bower_components/fastclick/lib/fastclick.js"></script>
 <!-- AdminLTE App -->
 <script src="../resources/dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="../resources/dist/js/demo.js"></script>
+
 
 <!-- AntPeople FullCalendar function -->
 <script src="../resources/js/ant_fullcalendar1.0.3.js"></script>
@@ -210,12 +139,14 @@
 <!-- Page specific script -->
 <script>
 var userId = 'testAdmin';
+//var userId = "${user.user_id}";
 // 페이지 로드 시 받을 수신받을 데이터 형태. --> '연월' : 수정가능여부
 var nowDate = new Date();
 
 //var gotList = "${monthList}" //더미로 확인필요...
 //현재 달을 확인하여 현재달 포함 이전은 수정불가로 List객체 조정.
 var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
+
 function convertToMonthObj(originDate, array){
   var result = {};
   var year = ""+originDate.getFullYear();
@@ -251,6 +182,74 @@ console.log(convertedList);
   '1909' : false, '1900' : true , '1911' : false
 }; //더미 목록, 월정보는 월 인덱스 값.
 */
+/*var newMonthlyPlanDummyArray = [
+  {
+    id : 'testAdmin_19061501001906160623',
+    title : '01:00~06:23',
+    startDate : '190615',
+    endDate :'190616',
+    startTime : '0100',
+    endTime : '0623',
+    userId : 'testAdmin',
+    fromUser : {'user_id' : 'testAdmin'},
+    state : '0',
+    manPower : '10',
+  },
+  {
+    id : 'testAdmin_19061503001906160623',
+    title : '01:00~06:23',
+    startDate : '190615',
+    endDate :'190616',
+    startTime : '1300',
+    endTime : '0623',
+    userId : 'testAdmin',
+    fromUser : {'user_id' : 'testAdmin'},
+    state : '0',
+    manPower : '10',
+  },
+  {
+    id : 'testAdmin_19062101001906220623',
+    title : '01:00~06:23',
+    startDate : '190621',
+    endDate :'190622',
+    startTime : '0100',
+    endTime : '0623',
+    userId : 'testAdmin',
+    fromUser : {'user_id' : 'testAdmin'},
+    state : '0',
+    manPower : '5',
+  },
+  {
+    id : 'testAdmin_19060101001906020623',
+    title : '01:00~06:23',
+    startDate : '190601',
+    endDate :'190602',
+    startTime : '0100',
+    endTime : '0623',
+    userId : 'testAdmin',
+    fromUser : {'user_id' : 'testAdmin'},
+    state : '0',
+    manPower : '7',
+  },
+]
+
+//>>배열로 받은 객체목록을 저장할 객체형태로 변환한다.
+function convertToAntPeopleEventList(rArray) {
+  var newMonthKey = rArray[0].startDate.slice(0,4);
+  console.log("newMonthKey")
+  console.log(newMonthKey);
+
+  var returnObj = {};
+  for(var i=0; i<rArray.length; i++) {
+    var thisObj = rArray[i]
+    var thisKey = rArray[i].id
+
+    returnObj[""+thisKey+""] = thisObj;
+  }
+  return returnObj;
+}
+*/
+
 // receivedDummy : 월별목록 선택시 수신받을 데이터 형태.
 var receivedDummy = {
   '1906' : {
@@ -310,6 +309,7 @@ var receivedDummy = {
     'testAdmin_19062101001906220623'
   ]
 }
+
 
 //Create Month Bar
 //1. 연월선택 inputbox : 목록이 없을 때 현재연월로 불러오도록 초기값 지정.
@@ -501,19 +501,24 @@ $(document).on('click','.external-event',function() {
     //b. 월별이벤트 데이터를 받아온다. --> {key = 1901 : value = {해당월의 계획} }
     var targetMonth = $(this).data().monthIndex; // ex) 1901 = 19년 2월.
     var userInfo = {'user_id' : userId};
+
+    //수신받은 월별일정을 변환.
+    //var rEventList = convertToAntPeopleEventList(newMonthlyPlanDummyArray);
+
     //ajax로 데이터 수신.
     //var receivedData = getMonthlyPlan(targetMonth);
     var receivedData = receivedDummy; //테스트용. 수신받았다고 가정. --> 못받은 경우?
     var keyVal;
     var rEventList;
     var individualList = {};
-    for(var key in receivedData) {
-      if(key == targetMonth) {
-        rEventList = receivedData[""+key+""];
-      } else {
-        individualList[""+key+""] = receivedData[""+key+""];
-      }
-    }
+//>>
+     for(var key in receivedData) {
+       if(key == targetMonth) {
+         rEventList = receivedData[""+key+""];
+       } else {
+         individualList[""+key+""] = receivedData[""+key+""];
+       }
+     }
     //c. 받아온 이벤트 데이터를 화면에 표시한다.
     for(var key in rEventList) {
       console.log('key')
@@ -548,16 +553,14 @@ $(document).on('click','.external-event',function() {
 
 //b. 월별 이벤트 데이터를 받아오는 함수.
 function getMonthlyPlan(inputVal) {
-  var infoForSend = {  //요청권한확인, 어느 점포의 정보를 보낼지 결정할 기초정보.
-    month : inputVal,
-  }
+  var targetMonthInfo = inputVal
   $.ajax({
 		url : 'monthplan',
 		method : 'post',
     // data : 서버로 보낼 데이터 - string or json(key/value)
 		data : targetMonthInfo,
     // contentType : 서버로 보낼 데이터의 타입.
-    contentType: 'application/json;charset=UTF-8',
+    contentType: 'text',
     // dataType : 서버로 부터 수신받을 데이터 타입.
 		dataType : 'JSON',
     async : false,
@@ -579,7 +582,7 @@ function remakeDisplayedEvents(antPeopleObjList){
     var mpValue = antPeopleObjList[""+key+""].manPower;
     var newTitle = antPeopleObjList[""+key+""].title;
     //tag정보 생성.
-    var mpSpan = $('<span />').css({'margin-left':2}).text(mpValue+"명");
+    var mpSpan = $('<span />').addClass('eventMarker').css({'padding-left':3}).text(mpValue+"명");
     var titleSpan = $('<span />').css({'margin-left':10}).text(newTitle);
 
     //존재하는 span을 모두 숨김.
@@ -610,7 +613,7 @@ $(document).on('click','.staffBar',function() {
       var targetId = targetIdList[""+key+""];
       console.log('tag')
       console.log($('span:contains("'+targetId+'")'))
-      $('span:contains("'+targetId+'")').parent().addClass('selectedEvent');
+      $('span:contains("'+targetId+'")').parent().parent().addClass('selectedEvent');
     }
   }
 })

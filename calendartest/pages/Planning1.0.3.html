@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
   <!-- external eventbar style -->
-  <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.2.css">
+  <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.3.css">
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -196,16 +196,10 @@ var state = 0;
 var initialData = [];
 
 //빈 객체.
-var emptyObj = {}
+var emptyObj = {};
 
-//수신데이터가 있을 경우, 저장.
-//var gotData = "<c:out value= '${plannereventdata}'/>"
-//if(gotData != "") {
-//  $.extend(emptyObj, gotData)
-//}
-
-/*{
-  testAdmin_19061501001906160623 : {
+var gotData = [
+  {
     id : 'testAdmin_19061501001906160623',
     title : '1111111',
     startDate : '190615',
@@ -216,7 +210,7 @@ var emptyObj = {}
     state : '0',
     manPower : '10',
   },
-  testAdmin_190615010019999160623 : {
+  {
     id : 'testAdmin_190615010019999160623',
     title : '1111111',
     startDate : '190615',
@@ -227,7 +221,28 @@ var emptyObj = {}
     state : '0',
     manPower : '10',
   }
-};*/
+];
+
+//수신데이터가 있을 경우, 저장.
+//var gotData = $.parseJSON('${jsonList}');
+console.log('gotData')
+console.log(gotData)
+if(gotData != "") {
+	for(var i=0; i<gotData.length; i++){
+		var tempKey = gotData[i].id;
+		var tempObj = gotData[i];
+		emptyObj[""+tempKey+""] = tempObj;
+	}
+}
+
+console.log('emptyObj')
+console.log(emptyObj)
+
+console.log('gotData')
+console.log(gotData)
+console.log('emptyObj')
+console.log(emptyObj)
+
 
 $('#calendar').data('eventList',emptyObj);
 var dataLocation = $('#calendar').data('eventList');
