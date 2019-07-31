@@ -145,7 +145,8 @@ var nowDate = new Date();
 
 //var gotList = "${monthList}" //더미로 확인필요...
 //현재 달을 확인하여 현재달 포함 이전은 수정불가로 List객체 조정.
-var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
+var gotList = "";
+//var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
 
 function convertToMonthObj(originDate, array){
   var result = {};
@@ -302,12 +303,13 @@ var receivedDummy = {
       manPower : '7',
     }
   },
-  user1 : [
+  /*user1 : [
     'testAdmin_19061501001906160623','testAdmin_19062101001906220623'
   ],
   user2 : [
     'testAdmin_19062101001906220623'
   ]
+  */
 }
 
 
@@ -401,7 +403,10 @@ function drawMenuBar(title, convertedObj, targetDiv, bClass, color ) {
 }
 
 //month 배열에 정보가 있는경우, inputbox초기값 지정.
-insertMonthValue(monthlyMenu);
+if(monthlyMenu.length>0){
+  insertMonthValue(monthlyMenu);
+}
+
 
 function insertMonthValue(monthlyMenu) {
   var lastVal = monthlyMenu[monthlyMenu.length-1];
@@ -508,7 +513,11 @@ $(document).on('click','.external-event',function() {
     //ajax로 데이터 수신.
     //var receivedData = getMonthlyPlan(targetMonth);
     var receivedData = receivedDummy; //테스트용. 수신받았다고 가정. --> 못받은 경우?
-    var keyVal;
+
+    function checkDataExist(jsObj) {
+
+    }
+
     var rEventList;
     var individualList = {};
 //>>
@@ -519,12 +528,22 @@ $(document).on('click','.external-event',function() {
          individualList[""+key+""] = receivedData[""+key+""];
        }
      }
+
     //c. 받아온 이벤트 데이터를 화면에 표시한다.
     for(var key in rEventList) {
       console.log('key')
       console.log(rEventList[""+key+""])
       var convertedEvent = convertToEventObj(rEventList[""+key+""]);
       $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
+//>> 19.07.31 : 보류. 없는 일정은 목록에도 없으므로 보낼일 없음.
+/*
+      if(Object.keys(rEventList).length > 0) {
+        var convertedEvent = convertToEventObj(rEventList[""+key+""]);
+        $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
+      } else {
+        alert('해당월의 일정을 찾을 수 없습니다.');
+      }
+*/
     }
     //d. 화면에 표시된 이벤트의 title을 숨기고, 밖으로 보여질 엘리먼트를 추가.
     remakeDisplayedEvents(rEventList);
@@ -622,7 +641,10 @@ $(document).on('click','.staffBar',function() {
 //5. 수정/등록버튼
 // 경우마다 수정과 등록페이지로 연결.
 $('#plannerButton').click(function() {
-  var target = $('monthForPlan').val();
+  var target = convertToMonthIndex($('#monthForPlan').val());
+  console.log('target')
+  console.log(target)
+
   if($('#plannerButton').hasClass('createPlanner') == true) {
     var planName = 'insertplan';
     //direction(planName,target);
@@ -633,6 +655,18 @@ $('#plannerButton').click(function() {
     console.log("ajax : 수정")
   }
 })
+
+function convertToMonthIndex(inputVal) {
+  var yearPart = inputVal.slice(2,4);
+  var monthPart = parseInt(inputVal.slice(5)-1);
+  var newMonth;
+  if(monthPart< 10) {
+    newMonth = "0" + monthPart;
+  } else {
+    newMonth = "" + monthPart;
+  }
+  return yearPart + newMonth;
+}
 
 function direction(planName,target) {
   //url 지정.

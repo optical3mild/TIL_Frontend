@@ -132,7 +132,7 @@ function createObj (startD,endD,startT,endT,numOfWorkers,state) {
   console.log('1.[fn : divideRange]생성할 기간 배열, 길이')
   console.log(dayObjArray);
   console.log(dayObjArray.length);
-  var objTitle = numOfWorkers+"__"+startT.colonType() + "~" + endT.colonType();
+  var objTitle = startT.colonType() + "~" + endT.colonType();
 
   var newObjArray = new Array();
   for(var i=0; i<dayObjArray.length; i++) {
