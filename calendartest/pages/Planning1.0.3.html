@@ -186,13 +186,13 @@
 <!-- Page specific script -->
 <script>
 var userId = "testAdmin";
-console.log('userId')
-console.log(userId);
+//var userId = ${user.user_id};
 
 //calendar 초기 로드값.
 var selectedMonth; //캘린더에 연결된 변수.
-var getInitialMonth = '1901'; //테스트
+var getInitialMonth = '1907'; //테스트
 //var getInitialMonth = ${monthIndex};
+//값의 존재여부 검사. --> 수정페이지에서는 값이 존재하여야 함.
 if(getInitialMonth > 0) {
   var selectedMonth = convertToInitialDateInfo(getInitialMonth);
 }
@@ -253,15 +253,6 @@ if(gotData != "") {
 		emptyObj[""+tempKey+""] = tempObj;
 	}
 }
-
-console.log('emptyObj')
-console.log(emptyObj)
-
-console.log('gotData')
-console.log(gotData)
-console.log('emptyObj')
-console.log(emptyObj)
-
 
 $('#calendar').data('eventList',emptyObj);
 var dataLocation = $('#calendar').data('eventList');
@@ -407,6 +398,10 @@ $(function() {
 //>>//Ajax로 가져올 event data
     defaultDate : selectedMonth,
     events : initialData,
+    //월별 표시되는 달력의 길이조정.
+    fixedWeekCount : false,
+    //현재 월 외의 날짜 표시조정. --> 현재표시된 날짜 외 이벤트 발생x.
+    showNonCurrentDates : false,
 
     //create
     // select dates.
@@ -533,8 +528,8 @@ $('#makeEvent').click(function() {
 // ./ End Of Modal창 이벤트 생성버튼
 
 // Rendering process
-function plannerRenderingProcess(sd,ed,st,et,wfe) {
-  var newEventObj = createObj (sd,ed,st,et,wfe);
+function plannerRenderingProcess(sd,ed,st,et,wfe,stat) {
+  var newEventObj = createObj (sd,ed,st,et,wfe,stat);
   console.log('[생성과정]')
   console.log('1.새로 생성된 obj배열:');
   console.log(newEventObj);
@@ -549,8 +544,8 @@ function plannerRenderingProcess(sd,ed,st,et,wfe) {
     var objId = newEventObj[i].id
     //동일 id를 찾아 존재하면 return값을 받아 전체 수행 이후 경고창을 띄워 알려준다.
     if(dataLocation[""+objId+""] != null) {
-      alreadyExistDatas[i] = newEventObj[i].startDate + "_" + newEventObj[i].startTime
-                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime;
+      alreadyExistDatas.push(newEventObj[i].startDate + "_" + newEventObj[i].startTime
+                        + " ~ " + newEventObj[i].endDate + "_" + newEventObj[i].endTime);
     } else {
       //ConverTing : from antPeopleObj created by createObj() to fullCalendarObj
       var convertedEvent = convertToEventObj(newEventObj[i]);
@@ -576,14 +571,12 @@ function plannerRenderingProcess(sd,ed,st,et,wfe) {
   //경고창 팝업.
   if(alreadyExistDatas.length>0) {
     for(var i=0; i<alreadyExistDatas.length; i++) {
-      console.log(alreadyExistDatas[i]);
       alertMsg = alertMsg + alreadyExistDatas[i] + "\n";
     }
     alert(alertMsg);
     console.log('4. 중복제외 등록 후 모든 event:');
     console.log($('#calendar').data('eventList'));
   }
-
   /*
   //캘린더에서 날짜로 위치검색
   function calVal(num) {
@@ -607,34 +600,39 @@ $('#submitPlan').click(function() {
   console.log($("#calendar").data())
 });
 
-function remakeDisplayedEvents(antPeopleObjList){
-  for(var key in antPeopleObjList) {
-    //목록으로부터 요구 인원수를 추출.
-    var mpValue = antPeopleObjList[""+key+""].manPower;
-    var newTitle = antPeopleObjList[""+key+""].title;
-    //새로 생성한 tag가 있는경우 --> 값만 변경.
+function remakeDisplayedEvents(antPeopleObjList) {
+  //if(Object.keys(antPeopleObjList).length > 0) {
+  //  console.log(antPeopleObjList)
+  //  console.log(Object.keys(antPeopleObjList))
+  //  console.log(Object.keys(antPeopleObjList).length > 0)
+    for(var key in antPeopleObjList) {
+      //목록으로부터 요구 인원수를 추출.
+      var mpValue = antPeopleObjList[""+key+""].manPower;
+      var newTitle = antPeopleObjList[""+key+""].title;
+      //새로 생성한 tag가 있는경우 --> 값만 변경.
 
-    //tag정보 생성.
-    var mpSpan = $('<span />').addClass('eventMarker').css({'padding-left':3}).text(mpValue+"명");
-    var titleSpan = $('<span />').addClass('eventTitle').css({'margin-left':10}).text(newTitle);
+      //tag정보 생성.
+      var mpSpan = $('<span />').addClass('eventMarker').css({'padding-left':3}).text(mpValue+"명");
+      var titleSpan = $('<span />').addClass('eventTitle').css({'margin-left':10}).text(newTitle);
 
-    //존재하는 span을 모두 숨김.
-    $('span:contains("'+key+'").fc-title').css({'display':'none'})
-    $('span:contains("'+key+'")').prev('span.fc-time').css({'display':'none'})
+      //존재하는 span을 모두 숨김.
+      $('span:contains("'+key+'").fc-title').css({'display':'none'})
+      $('span:contains("'+key+'")').prev('span.fc-time').css({'display':'none'})
 
-    //생성한 span tag를 추가. - 추가된 span이 이미 있는지 확인 후, 있으면 값만 변경.
-    var checkExist = $('span:contains("'+key+'")').parent().find('.eventMarker');
+      //생성한 span tag를 추가. - 추가된 span이 이미 있는지 확인 후, 있으면 값만 변경.
+      var checkExist = $('span:contains("'+key+'")').parent().find('.eventMarker');
 
-    if(checkExist.length <= 0) {
-      console.log('checkExist.is() = false')
-      $('span:contains("'+key+'")').parent().prepend(titleSpan);
-      $('span:contains("'+key+'")').parent().prepend(mpSpan);
-    } else if (checkExist.length > 0) {
-      console.log('checkExist.is() = true')
-      $('span:contains("'+key+'")').parent().find('.eventMarker').text(mpValue+"명");
-      $('span:contains("'+key+'")').parent().find('.eventTitle').text(newTitle);
+      if(checkExist.length <= 0) {
+        console.log('checkExist.is() = false')
+        $('span:contains("'+key+'")').parent().prepend(titleSpan);
+        $('span:contains("'+key+'")').parent().prepend(mpSpan);
+      } else if (checkExist.length > 0) {
+        console.log('checkExist.is() = true')
+        $('span:contains("'+key+'")').parent().find('.eventMarker').text(mpValue+"명");
+        $('span:contains("'+key+'")').parent().find('.eventTitle').text(newTitle);
+      }
     }
-  }
+  //}
 }
 </script>
 </body>
