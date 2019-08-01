@@ -20,7 +20,7 @@
 > ##### 7.28 : PlannerMain0.0.2 작업 중.( 월별일정 편람, 직원별 일정확인, 수정/생성화면으로 연결기능 )
 > ##### 7.31 : modifyplan0.0.1  -- antpeopleproject에 업데이트 완료. (월별 운영계획 수정화면)
 > ##### 8.01 : requestWork0.0.1  -- antpeopleproject에 업데이트 완료. (직원 일정신청화면)
-> #####	       mainpage - toDo -- 기능개발 시작.
+> #####	8.01 : mainpage - toDo -- 기능개발 시작.
 
 ### 3. antPeopleViewPart : antPeopleProject에 사용할 view 개발관련 (7.14~)
 > ###### 7.14 : 초기 page레이아웃 업데이트 (index, calendar, top, nav, login) 
