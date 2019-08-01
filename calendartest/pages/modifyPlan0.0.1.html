@@ -213,8 +213,8 @@ var state = 0;
 // calendar로딩 시 표시될 객체배열
 var initialData = [];
 
-var gotData = [
-  {
+var gotData = {
+  testAdmin_19071501001907160623 : {
     id : 'testAdmin_19071501001907160623',
     title : '01:00~06:23',
     startDate : '190715',
@@ -226,7 +226,7 @@ var gotData = [
     state : '0',
     manPower : '10',
   },
-  {
+  testAdmin_19071503001907160623 : {
     id : 'testAdmin_19071503001907160623',
     title : '01:00~06:23',
     startDate : '190715',
@@ -238,7 +238,7 @@ var gotData = [
     state : '0',
     manPower : '10',
   },
-  {
+  testAdmin_19072101001907220623 : {
     id : 'testAdmin_19072101001907220623',
     title : '01:00~06:23',
     startDate : '190721',
@@ -250,7 +250,7 @@ var gotData = [
     state : '0',
     manPower : '5',
   },
-  {
+  testAdmin_19070101001907020623 : {
     id : 'testAdmin_19070101001907020623',
     title : '01:00~06:23',
     startDate : '190701',
@@ -262,7 +262,7 @@ var gotData = [
     state : '0',
     manPower : '7',
   }
-];
+};
 
 //>> modifyplan0.0.1
 // 페이지 로드 시 DB에서 받은 정보 : eventList (기존과 동일한 장소.)
@@ -283,11 +283,16 @@ console.log('gotData')
 console.log(gotData)
 // 받은데이터가 있는 경우, emptyObj에 넣고, calendar element에 data로 저장한다.
 if(gotData != "") {
+	for(var key in gotData) {
+		originalDataLoc[""+key+""] = gotData[""+key+""];
+	}
+  /*
 	for(var i=0; i<gotData.length; i++){
 		var tempKey = gotData[i].id;
 		var tempObj = gotData[i];
 		originalDataLoc[""+tempKey+""] = tempObj;
 	}
+  */
 }
 //$('#calendar').data('eventList', emptyObj);
 //var originalDataLoc = $('#calendar').data('eventList');
