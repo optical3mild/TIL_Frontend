@@ -416,6 +416,7 @@
 <script>
 //초기 객체값을 받아 todo구조를 화면에 뿌려준다...
 var initialData = ['test1','test2','test3'];
+var tool = 'test';
 var toDoInitialSet = {
   header : {
     title : 'title',
@@ -431,6 +432,9 @@ var toDoInitialSet = {
   initialContents : initialData,
 }
 
+
+
+//전체 틀 생성...
 function renderTodo (target, initialSetObj) {
   //헤더 생성
   var headerPart = $('<div />').addClass('box-header');
@@ -444,9 +448,13 @@ $('#popupToDoBoard').on('click',function() {
   $('#writeToDoItem').modal('show');
 });
 
-$(function() {
-
-});
+function addToList(target, toDoDescription, ) {
+  var frameLi = $('<li />');
+  var dragHandle = $('<span />').addClass('handle');
+  var inputTagCheckBox = $('<input />').attr('type', 'text')
+  var descText = $('<span />').addClass('text');
+  var
+}
 </script>
 </body>
 </html>

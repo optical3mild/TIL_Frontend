@@ -145,7 +145,7 @@ var nowDate = new Date();
 
 //var gotList = "${monthList}" //더미로 확인필요...
 //현재 달을 확인하여 현재달 포함 이전은 수정불가로 List객체 조정.
-var gotList = "";
+//var gotList = "";
 //var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
 
 function convertToMonthObj(originDate, array){
@@ -175,14 +175,14 @@ function convertToMonthObj(originDate, array){
   }
   return result;
 }
-var convertedList = convertToMonthObj(nowDate,gotList);
-console.log('convertedList');
-console.log(convertedList);
-/*var gotList = {
+//var convertedList = convertToMonthObj(nowDate,gotList);
+//console.log('convertedList');
+//console.log(convertedList);
+var gotList = {
   '1907' : true, '1905' : false, '1906' : true,
   '1909' : false, '1900' : true , '1911' : false
 }; //더미 목록, 월정보는 월 인덱스 값.
-*/
+var convertedList = gotList;
 /*var newMonthlyPlanDummyArray = [
   {
     id : 'testAdmin_19061501001906160623',
