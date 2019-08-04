@@ -25,7 +25,23 @@
 
   <!-- external eventbar style -->
   <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.3.css">
-
+  <style>
+  .approval {
+    background-color: #00a65a
+  }
+  .approval:hover {
+    opacity : 0.5;
+  }
+  .approvalCanelation {
+    background-color: ##e47636
+  }
+  .approvalCanelation:hover {
+    opacity : 0.5;
+  }
+  .finishModify{
+    opacity : 0.5;
+  }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -58,27 +74,13 @@
               <!-- the events -->
               <div id="external-events">
               </div>
+              <hr class="divArea">
+              <button id="approvalAndCancel" type="button" class="btn btn-primary btn-flat pull-right approval" disabled>승인</button>
             </div>
             <!-- /.box-body -->
           </div>
           <!-- /. box -->
-          <div class="box box-solid">
 
-            <div class="box-body">
-
-              <div class="input-group" style="width:100%">
-                <div>
-                  <label for="monthForPlan">연월선택</label>
-                  <input id="monthForPlan" class="form-control forColor panel" name='monthForPlan' type="month">
-                </div>
-                <br><br>
-                <hr class="divArea">
-                <button id="plannerButton" type="button" class="btn btn-primary btn-flat pull-right createPlanner">생성</button>
-                <!-- /btn-group -->
-              </div>
-              <!-- /input-group -->
-            </div>
-          </div>
 
           <div class="box box-solid" id="individual-box">
             <div class="box-header with-border">
@@ -88,6 +90,8 @@
               <!-- the events -->
               <div id="individual-events">
               </div>
+              <hr class="divArea">
+              <button id="modifyAndCancel" type="button" class="btn btn-primary btn-flat pull-right" disabled>수정</button>
             </div>
             <!-- /.box-body -->
           </div>
@@ -138,195 +142,92 @@
 <script src="../resources/bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
 <!-- Page specific script -->
 <script>
-var userId = 'testAdmin';
+var userId = 'testUser';
 //var userId = "${user.user_id}";
 // 페이지 로드 시 받을 수신받을 데이터 형태. --> '연월' : 수정가능여부
 var nowDate = new Date();
 
+//** 승인/승인취소 버튼 클릭 시 보낼 월의 인덱스를 저장할 변수.
+var selectedMonthIndex = "";
+
 //var gotList = "${monthList}" //더미로 확인필요...
 //현재 달을 확인하여 현재달 포함 이전은 수정불가로 List객체 조정.
-//var gotList = "";
-//var gotList = ['1907','1905','1906','1909','1900','1911']; //더미 목록, 월정보는 월 인덱스 값.
 
-function convertToMonthObj(originDate, array){
-  var result = {};
-  var year = ""+originDate.getFullYear();
-  console.log("year: " + year)
-  var month = ""+originDate.getMonth();
-  if(month<10) {
-    month = "0"+month;
-  }
-  console.log("month: " + month)
-  var now =  year.slice(2) + month;
-  for(var i=0; i<array.length; i++) {
-    var thisIndex = array[i];
-    console.log('thisIndex')
-    console.log(thisIndex)
-    var nowValue = parseInt(now)
-    console.log('now')
-    console.log(nowValue)
-    console.log(now)
-
-    if(parseInt(now) >= parseInt(thisIndex)) {
-      result[""+thisIndex+""] = false;
-    } else if(parseInt(now) < parseInt(thisIndex)) {
-      result[""+thisIndex+""] = true;
-    }
-  }
-  return result;
-}
-//var convertedList = convertToMonthObj(nowDate,gotList);
-//console.log('convertedList');
-//console.log(convertedList);
 var gotList = {
   '1907' : true, '1905' : false, '1906' : true,
   '1909' : false, '1900' : true , '1911' : false
 }; //더미 목록, 월정보는 월 인덱스 값.
 var convertedList = gotList;
-/*var newMonthlyPlanDummyArray = [
-  {
-    id : 'testAdmin_19061501001906160623',
-    title : '01:00~06:23',
-    startDate : '190615',
-    endDate :'190616',
-    startTime : '0100',
-    endTime : '0623',
-    userId : 'testAdmin',
-    fromUser : {'user_id' : 'testAdmin'},
-    state : '0',
-    manPower : '10',
-  },
-  {
-    id : 'testAdmin_19061503001906160623',
-    title : '01:00~06:23',
-    startDate : '190615',
-    endDate :'190616',
-    startTime : '1300',
-    endTime : '0623',
-    userId : 'testAdmin',
-    fromUser : {'user_id' : 'testAdmin'},
-    state : '0',
-    manPower : '10',
-  },
-  {
-    id : 'testAdmin_19062101001906220623',
-    title : '01:00~06:23',
-    startDate : '190621',
-    endDate :'190622',
-    startTime : '0100',
-    endTime : '0623',
-    userId : 'testAdmin',
-    fromUser : {'user_id' : 'testAdmin'},
-    state : '0',
-    manPower : '5',
-  },
-  {
-    id : 'testAdmin_19060101001906020623',
-    title : '01:00~06:23',
-    startDate : '190601',
-    endDate :'190602',
-    startTime : '0100',
-    endTime : '0623',
-    userId : 'testAdmin',
-    fromUser : {'user_id' : 'testAdmin'},
-    state : '0',
-    manPower : '7',
-  },
-]
-
-//>>배열로 받은 객체목록을 저장할 객체형태로 변환한다.
-function convertToAntPeopleEventList(rArray) {
-  var newMonthKey = rArray[0].startDate.slice(0,4);
-  console.log("newMonthKey")
-  console.log(newMonthKey);
-
-  var returnObj = {};
-  for(var i=0; i<rArray.length; i++) {
-    var thisObj = rArray[i]
-    var thisKey = rArray[i].id
-
-    returnObj[""+thisKey+""] = thisObj;
-  }
-  return returnObj;
-}
-*/
 
 // receivedDummy : 월별목록 선택시 수신받을 데이터 형태.
 var receivedDummy = {
-  '1906' : {
-    testAdmin_19061501001906160623 : {
-      id : 'testAdmin_19061501001906160623',
+  '1907' : {
+    testAdmin_19071501001907160623 : {
+      id : 'testAdmin_19071501001907160623',
       title : '01:00~06:23',
-      startDate : '190615',
-      endDate :'190616',
+      startDate : '190715',
+      endDate :'190716',
       startTime : '0100',
       endTime : '0623',
       userId : 'testAdmin',
       fromUser : {'user_id' : 'testAdmin'},
       state : '0',
       manPower : '10',
+      peopleCount : '0',
     },
-    testAdmin_19061503001906160623 : {
-      id : 'testAdmin_19061503001906160623',
+    testAdmin_19071503001907160623 : {
+      id : 'testAdmin_19071503001907160623',
       title : '01:00~06:23',
-      startDate : '190615',
-      endDate :'190616',
+      startDate : '190715',
+      endDate :'190716',
       startTime : '1300',
       endTime : '0623',
       userId : 'testAdmin',
       fromUser : {'user_id' : 'testAdmin'},
       state : '0',
       manPower : '10',
+      peopleCount : '0',
     },
-    testAdmin_19062101001906220623 : {
-      id : 'testAdmin_19062101001906220623',
+    testAdmin_19072101001907220623 : {
+      id : 'testAdmin_19072101001907220623',
       title : '01:00~06:23',
-      startDate : '190621',
-      endDate :'190622',
+      startDate : '190721',
+      endDate :'190722',
       startTime : '0100',
       endTime : '0623',
       userId : 'testAdmin',
       fromUser : {'user_id' : 'testAdmin'},
       state : '0',
       manPower : '5',
+      peopleCount : '5',
     },
-    testAdmin_19060101001906020623 : {
-      id : 'testAdmin_19060101001906020623',
+    testAdmin_19070101001907020623 : {
+      id : 'testAdmin_19070101001907020623',
       title : '01:00~06:23',
-      startDate : '190601',
-      endDate :'190602',
+      startDate : '190701',
+      endDate :'190702',
       startTime : '0100',
       endTime : '0623',
       userId : 'testAdmin',
       fromUser : {'user_id' : 'testAdmin'},
       state : '0',
       manPower : '7',
+      peopleCount : '1',
     }
   },
   user1 : [
-    'testAdmin_19061501001906160623','testAdmin_19062101001906220623'
+    'testAdmin_19070101001907020623','testAdmin_19072101001907220623'
   ],
   user2 : [
-    'testAdmin_19062101001906220623'
+    'testAdmin_19072101001907220623'
   ]
-  
 }
 
+//직원일정에서 제거한 목록.
+$('#calendar').data('unSelectedList',[]);
+var unSelectedDataLoc = $('#calendar').data('unSelectedList');
 
-//Create Month Bar
-//1. 연월선택 inputbox : 목록이 없을 때 현재연월로 불러오도록 초기값 지정.
-var nowYear = nowDate.getFullYear();
-var nowMonth = nowDate.getMonth();
-var calMonth;
-if(nowMonth<10) { calMonth =  "0" + (nowMonth+1);
-} else { calMonth = nowMonth + 1;}
-var defaultYMValue = nowYear+"-"+calMonth;
-console.log('1.현재연월')
-console.log("\""+ nowYear+"-"+calMonth+"\"");
-$('#monthForPlan').val(defaultYMValue);
-// ./End of 1. 연월선택 inputbox
-
-//2. 이벤트바 자동생성 : 리스트를 수신받아서 push
+//1. 이벤트바 자동생성 : 리스트를 수신받아서 push
 var monthlyMenu = [];
 var targetDiv = '#external-events'
 var barClass = 'external-event'
@@ -334,8 +235,6 @@ var barClass = 'external-event'
 //페이지 로딩 시 목록을 수신받아 값이 있는경우 순차적으로 배열에 삽입.
 if( Object.keys(convertedList).length > 0 ) {
   var afterConvert = convertForMonthlyMenuList(convertedList);
-  console.log('convertedList');
-  console.log(convertedList);
   $.each(afterConvert, function(key, value){
     monthlyMenu.push(key);
   });
@@ -402,113 +301,110 @@ function drawMenuBar(title, convertedObj, targetDiv, bClass, color ) {
   $(''+targetDiv+'').prepend(monthEventBar);
 }
 
-//month 배열에 정보가 있는경우, inputbox초기값 지정.
+//>>accept.0.0.1에서 수정됨. : inputbox수정  --> 변수에 직접입력.
+//month 배열에 정보가 있는경우, 캘린더 초기값 지정.
+var initialMonth;
 if(monthlyMenu.length>0){
-  insertMonthValue(monthlyMenu);
+  initialMonth = setCalendarToNextMonth(monthlyMenu);
+} else {
+  initialMonth = nowDate;
 }
 
+function setCalendarToNextMonth(menuList) {
+  var lastVal = menuList[menuList.length-1];
+  console.log('lastVal')
+  console.log(lastVal)
 
-function insertMonthValue(monthlyMenu) {
-  var lastVal = monthlyMenu[monthlyMenu.length-1];
-  var newInputMonthValue = calNextMonthValue(lastVal);
-  $('#monthForPlan').val(newInputMonthValue);
-}
-
-// 목록과 연계하여 month값 계산.
-function calNextMonthValue(title) {
-  var year = parseInt(title.slice(0,4));
-  var month = parseInt(title.slice(5));
+  var year = parseInt(lastVal.slice(0,4));
+  var month = parseInt(lastVal.slice(5));
   var newYear;
-  var newMonth = month + 1;
-  if(newMonth > 12) {
-    newMonth = "01";
+  var newMonth;
+  if(month > 11) {
+    newMonth = 0;
     newYear = year + 1;
   } else {
+    newMonth = month;
     newYear = year;
-    if(newMonth < 10) {
-      newMonth = "0"+newMonth;
-    };
   }
-  return newYear+"-"+newMonth;
+  var result = new Date(newYear, newMonth, 1);
+
+  return result;
 }
 // ./ End of 2. 이벤트 바 등록
 
-//입력값 감지, 리스트와 비교하여 생성버튼 비활성화.
-$(document).on('change','#monthForPlan',function() {
-  var targetBtn = $('#plannerButton');
-  var targetBtnText = targetBtn.text();
-  var setVal = $(this).val();
-  var dateforCalendar = convertToMomentDateObj(setVal);
-  console.log('월정보')
-  console.log(dateforCalendar)
-  $('#calendar').fullCalendar('gotoDate',dateforCalendar);
-  //버튼 초기화
-  targetBtn.attr('disabled', false);
-  if(targetBtnText == "생성") {
-    //렌더링된 달 목록에 입력값이 존재하는 경우 --> 사용불가로.
-    if($('#external-events div:contains('+setVal+')').length>0) {
-      targetBtn.attr('disabled', true);
-    } else if($('#external-events div:contains('+setVal+')').length<0) {
-      targetBtn.attr('disabled', false);
-    }
-  }
-});
 
-//역파싱 : 입력값을 date객체로.
-function convertToMomentDateObj(val) {
-  var yearP = parseInt(val.slice(0,4));
-  var monthP = parseInt(val.slice(5))-1;
-  var newDateObj = new Date(yearP,monthP);
-  return newDateObj;
+function convertMonthIndexToMomentDateObj(mIndex) {
+  var yearPart = parseInt('20'+mIndex.slice(0,2));
+  var monthPart = parseInt(mIndex.slice(2));
+  return new Date(yearPart, monthPart);
 }
 
-//3. external eventbar 선택기능 + 버튼 형상 전환 + 캘린더에 표시될 내용 수신.
-$(document).on('click','.external-event',function() {
-  $('#individual-box').css({'display':'none'});
-  $("#individual-events").empty();
-  $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
-  var checkSelect = $(this).hasClass('clickEvent_Opacity');
-  var targetBtn = $('#plannerButton');
-  $('#calendar').fullCalendar('removeEvents');
 
+
+//2. external eventbar 선택기능 + 버튼 형상 전환 + 캘린더에 표시될 내용 수신.
+$(document).on('click','.external-event',function() {
+  //직원목록 박스 숨기기
+  $('#individual-box').css({'display':'none'});
+  //직원목록 초기화
+  $("#individual-events").empty();
+  // 캘린더 초기화
+  $('#calendar').fullCalendar('removeEvents');
+  // 선택여부 표시 : 투명도 조정.
+  $('.clickEvent_Opacity').not($(this)).removeClass('clickEvent_Opacity');
+  // 선택된 것을 다시 누른것인지 판별.
+  var checkSelect = $(this).hasClass('clickEvent_Opacity');
+  // 변화시킬 버튼 선정.
+  var targetBtn = $('#approvalAndCancel');
+
+  // 선택되어 있는지 여부에 따라 실행.
+  // 선택되어 있었던 경우 = true.
   if(checkSelect == true) {
+    // 1. 셀렉트 취소. --> 원래대로 되돌리고, 버튼 비활성화.
+    // 직원목록 박스 제거.
     $('#individual-box').css({'display':'none'});
+    // 음영처리 제거.
     $(this).removeClass('clickEvent_Opacity');
-    targetBtn.removeClass('modifyPlanner')
-    targetBtn.addClass('createPlanner').text('생성');
-    targetBtn.attr('disabled', false);
-    //입력창 값을 리스트의 마지막 달 보다 한달이후의 값으로 변화시킨다.
-    insertMonthValue(monthlyMenu);
-    //입력창 활성화.
-    $('#monthForPlan').attr('disabled', false);
-    //입력창 값을 읽어 캘린더 화면 위치 조정.
-    var inputValue = $('#monthForPlan').val();
-    var dateforCalendar = convertToMomentDateObj(inputValue);
-    $('#calendar').fullCalendar('gotoDate',dateforCalendar);
+    // 승인취소 --> 승인으로 변경, 버튼 비활성화.
+    targetBtn.removeClass('approvalCanelation')
+    targetBtn.addClass('approval').text('승인').css({'background-color' : '#00a65a'});
+    targetBtn.attr('disabled', true);
+
+    //캘린더의 화면을 목록의 마지막 다음달로 변경.
+    $('#calendar').fullCalendar('gotoDate',initialMonth);
+
+    // 월 인덱스가 저장되었던 변수를 초기화.
+    selectedMonthIndex = "";
 
   } else if(checkSelect == false) {
+    // 2. 셀렉트
+    // 음영처리 : 선택한것을 시각적으로 보여줌.
     $(this).addClass('clickEvent_Opacity');
-    targetBtn.removeClass('createPlanner')
-    targetBtn.addClass('modifyPlanner').text('수정');
-    // 입력창 값을 선택한 바의 값으로 변화 후 입력창 비활성화.
-    var thisMonth = $(this).data().title;
-    $('#monthForPlan').val(thisMonth).attr('disabled', true);
-    //변화된 입력창 값을 읽어 캘린더 화면도 이동.
-    var dateforCalendar = convertToMomentDateObj(thisMonth);
-    $('#calendar').fullCalendar('gotoDate',dateforCalendar);
+    // data로 저장된 monthIndex값을 읽어 화면 이동.
+    var thisMonthIndex = $(this).data().monthIndex;
+    console.log('thisMonthIndex');
+    console.log(thisMonthIndex);
+    var thisMonthObj = convertMonthIndexToMomentDateObj(thisMonthIndex);
+    $('#calendar').fullCalendar('gotoDate',thisMonthObj);
+
+    // 월 인덱스를 전역변수에 저장.
+    selectedMonthIndex = thisMonthIndex;
+
     //calender rendering 작업, 화면을 해당월로 표기,
-    //a. 수정가능 여부 확인하여 불가한 경우 버튼 비활성화. --> 객체에 넣는것으로...
+    //a. 승인여부 판단하여 승인된 경우 승인취소로 표기
     targetBtn.attr('disabled', false);
     var switchInfo = $(this).data().mendable;
     if(switchInfo == false) {
-      targetBtn.attr('disabled', true);
+      // false : 수정불가 == 승인된 상태 --> 승인취소 가능하게 변경.
+      targetBtn.removeClass('approval')
+      targetBtn.addClass('approvalCanelation').text('승인취소').css({'background-color' : '#e47636'});
+    } else {
+      // true : 수정가능 == 승인되지 않은 상태 --> 승인 가능하게 변경.
+      targetBtn.removeClass('approvalCanelation')
+      targetBtn.addClass('approval').text('승인').css({'background-color' : '#00a65a'});
     }
     //b. 월별이벤트 데이터를 받아온다. --> {key = 1901 : value = {해당월의 계획} }
     var targetMonth = $(this).data().monthIndex; // ex) 1901 = 19년 2월.
     var userInfo = {'user_id' : userId};
-
-    //수신받은 월별일정을 변환.
-    //var rEventList = convertToAntPeopleEventList(newMonthlyPlanDummyArray);
 
     //ajax로 데이터 수신.
     //var receivedData = getMonthlyPlan(targetMonth);
@@ -531,15 +427,7 @@ $(document).on('click','.external-event',function() {
       console.log(rEventList[""+key+""])
       var convertedEvent = convertToEventObj(rEventList[""+key+""]);
       $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
-//>> 19.07.31 : 보류. 없는 일정은 목록에도 없으므로 보낼일 없음.
-/*
-      if(Object.keys(rEventList).length > 0) {
-        var convertedEvent = convertToEventObj(rEventList[""+key+""]);
-        $('#calendar').fullCalendar('renderEvent', convertedEvent, true);
-      } else {
-        alert('해당월의 일정을 찾을 수 없습니다.');
-      }
-*/
+
     }
     //d. 화면에 표시된 이벤트의 title을 숨기고, 밖으로 보여질 엘리먼트를 추가.
     remakeDisplayedEvents(rEventList);
@@ -590,37 +478,25 @@ function getMonthlyPlan(inputVal) {
 	});
 }
 
-//d. 화면 재구성함수.
-function remakeDisplayedEvents(antPeopleObjList){
-  for(var key in antPeopleObjList) {
-    //목록으로부터 요구 인원수를 추출.
-    var mpValue = antPeopleObjList[""+key+""].manPower;
-    var newTitle = antPeopleObjList[""+key+""].title;
-    //tag정보 생성.
-    var mpSpan = $('<span />').addClass('eventMarker').css({'padding-left':3}).text(mpValue+"명");
-    var titleSpan = $('<span />').css({'margin-left':10}).text(newTitle);
 
-    //존재하는 span을 모두 숨김.
-    $('span:contains("'+key+'")').css({'display':'none'})
-    $('span:contains("'+key+'")').prev('span').css({'display':'none'})
-    //생성한 span tag를 추가.
-    $('span:contains("'+key+'")').parent().prepend(titleSpan);
-    $('span:contains("'+key+'")').parent().prepend(mpSpan);
-  }
-}
 //./ End of 3. external eventbar 선택기능
 
 
-//4. 직원목록 버튼 : 선택 시 캘린더 이벤트에 표시.
+//3. 직원목록 버튼 : 선택 시 캘린더 이벤트에 표시.
 $(document).on('click','.staffBar',function() {
+  //승인버튼 잠금 초기화 : <----- 직원목록 아래의 수정, 수정완료 버튼작동과 맞물려 잠금설정.
+  $('#approvalAndCancel').attr('disabled',false);
   $('.selectStaffBar_Opacity').not($(this)).removeClass('selectStaffBar_Opacity');
   var checkSelect = $(this).hasClass('selectStaffBar_Opacity');
   var targetIdList = $(this).data()
   console.log(targetIdList)
   //클릭 시 선택 초기화.
   $('.selectedEvent').removeClass('selectedEvent');
+  $('#modifyAndCancel').attr('disabled', true);
   if(checkSelect == true) {
     $(this).removeClass('selectStaffBar_Opacity');
+    $('#modifyAndCancel').attr('disabled', true);
+
   } else if(checkSelect == false) {
     $(this).addClass('selectStaffBar_Opacity');
     //calendar에서 이벤트의 id와 일치하는 경우 효과부여. 그외는 효과지움.
@@ -630,72 +506,114 @@ $(document).on('click','.staffBar',function() {
       console.log($('span:contains("'+targetId+'")'))
       $('span:contains("'+targetId+'")').parent().parent().addClass('selectedEvent');
     }
+    // selectedMonthIndex에 값이 있는 경우 --> 월 정보 선택되어 있음.
+    // 선택된 월별 이벤트 바의 data를 읽어 승인여부를 판단.
+    var checkApprovalState = $('.clickEvent_Opacity').data().mendable;
+    if((selectedMonthIndex != "")&&($(checkApprovalState == true))) {
+      //해당 월의 인덱스 정보가 존재하고, 수정기능한 상태일때 수정버튼 활성화.
+      $('#modifyAndCancel').removeClass('finishModify');
+      $('#modifyAndCancel').attr('disabled', false).addClass('modifyStaffEvent').text('수정');
+    } else {
+      $('#modifyAndCancel').removeClass('modifyStaffEvent');
+      $('#modifyAndCancel').attr('disabled', true).addClass('finishModify').text('수정완료');
+    }
   }
 })
 
 
-//5. 수정/등록버튼
-// 경우마다 수정과 등록페이지로 연결.
-$('#plannerButton').click(function() {
-  var target = convertToMonthIndex($('#monthForPlan').val());
-  console.log('target')
-  console.log(target)
+//4. 승인/ 승인취소 버튼
+// 셀렉트 된 월의 인덱스와 승인(== false로 변경) / 승인취소(== true로 변경)을 보냄..
+$('#approvalAndCancel').click(function() {
+  var changeValue;
+  var selectedMBar = $('.clickEvent_Opacity').data().title;
+  if($(this).hasClass('approval') == true) {
+    //승인 --> 월별 수정가능 상태를 false(수정불가)로 바꾸도록 전송.
+    alert(selectedMBar+"를 승인합니다.");
+    changeValue = false;
 
-  if($('#plannerButton').hasClass('createPlanner') == true) {
-    var planName = 'insertplan';
-    //direction(planName,target);
-    console.log("ajax : 생성")
-  } else if($('#plannerButton').hasClass('modifyPlanner') == true) {
-    var planName = 'updateplan';
-    //direction(planName,target);
-    console.log("ajax : 수정")
+  } else if($(this).hasClass('approvalCanelation') == true) {
+    //승인취소 --> 월별 수정가능 상태를 true(수정가능)로 바꾸도록 전송.
+    alert(selectedMBar+"의 승인을 취소합니다.");
+    changeValue = true;
   }
+  changeApprovalState(selectedMonthIndex, changeValue);
 })
 
-function convertToMonthIndex(inputVal) {
-  var yearPart = inputVal.slice(2,4);
-  var monthPart = parseInt(inputVal.slice(5)-1);
-  var newMonth;
-  if(monthPart< 10) {
-    newMonth = "0" + monthPart;
-  } else {
-    newMonth = "" + monthPart;
+//>>
+function changeApprovalState(targetMonthIndex, value) {
+  var monthInfoObj = {
+    targetMonthIndex : value
   }
-  return yearPart + newMonth;
-}
-
-function direction(planName,target) {
-  //url 지정.
-  var modifyPlan = 'insertplan' //수정페이지 경로
-  var createPlan = 'updateplan' //생성페이지 경로
-  var selectedUrl;
-  if(planName == modifyPlan) {
-    selectedUrl = modifyPlan;
-  } else if(planName == createPlan){
-    selectedUrl = createPlan;
-  };
   $.ajax({
-		url : selectedUrl,
+		url : '',
 		method : 'post',
     // data : 서버로 보낼 데이터 - string or json(key/value)
-		data : target,
+		data : monthInfoObj,
     // contentType : 서버로 보낼 데이터의 타입.
-    contentType: 'text',
+    contentType: 'application/json',
     // dataType : 서버로 부터 수신받을 데이터 타입.
-		dataType : 'text',
+		dataType : 'json',
     async : false,
 		error : function(response) {
-			alert("통신실패, response: " + response);
+      alert("등록에 실패하였습니다. 다시 실행해주세요.")
+			console.log("통신실패, response:");
+      console.log(response);
 		},
 		success : function(response) {
-			alert("통신성공, response: " + response);
+			alert("승인되었습니다.");
+      //승인 시 페이지 새로고침 --> 화면 초기화로 월별 이벤트 바를 다시 생성.
 			document.location.href = response;
 		}
 	});
 }
 
-//입력창 값을 읽어 초기 화면위치 표시.
-var selectedMonth = $('#monthForPlan').val();
+//5. 직원일정 수정기능 활성화 버튼.
+$('#modifyAndCancel').click(function() {
+  if($(this).hasClass('modifyStaffEvent') == true) {
+    //수정으로 표시되는 경우, --> 수정완료로 변경.
+    $('#modifyAndCancel').removeClass('modifyStaffEvent');
+    $('#modifyAndCancel').addClass('finishModify').text('수정완료');
+    $('#approvalAndCancel').attr('disabled',true);
+
+  } else {
+    //수정완료로 표시되는 경우, --> 수정으로 변경
+    $('#modifyAndCancel').removeClass('finishModify');
+    $('#modifyAndCancel').addClass('modifyStaffEvent').text('수정');
+    $('#approvalAndCancel').attr('disabled',false);
+    //통신발생, 페이지 새로고침??;;
+    var staffCancelInfo = unSelectedDataLoc;
+    var staffId = $('.selectStaffBar_Opacity').text();
+    console.log('staffCancelInfo')
+    console.log(staffCancelInfo)
+    communicateModifyStaffEvent(staffId, staffCancelInfo);
+  }
+});
+
+function communicateModifyStaffEvent(staffId, staffCancelInfo) {
+  var canceledEventList = {
+    staffId : eventIdList
+  }
+  $.ajax({
+		url : '',
+		method : 'post',
+    // data : 서버로 보낼 데이터 - string or json(key/value)
+		data : canceledEventList,
+    // contentType : 서버로 보낼 데이터의 타입.
+    contentType: 'application/json',
+    // dataType : 서버로 부터 수신받을 데이터 타입.
+		dataType : 'json',
+    async : false,
+		error : function(response) {
+			console.log("통신실패, response:");
+      console.log(response);
+		},
+		success : function(response) {
+			alert("수정되었습니다.");
+      //승인 시 페이지 새로고침 --> 화면 초기화로 월별 이벤트 바를 다시 생성.
+			document.location.href = response;
+		}
+	});
+}
 
 //DayObj, TimeObj : 프로토타입 객체.
 var startDay = new DayObj();
@@ -749,40 +667,66 @@ $(function() {
       week : 'week',
       day  : 'day'
     },
-    defaultDate : selectedMonth,
+    defaultDate : initialMonth,
 //>>//Ajax로 가져올 event data
     events : initialData,
+    //월별 표시되는 달력의 길이조정.
+    fixedWeekCount : false,
+    //현재 월 외의 날짜 표시조정. --> 현재표시된 날짜 외 이벤트 발생x.
+    showNonCurrentDates : false,
+
+    eventClick: function (calEvent, jsEvent, view) {
+      //수정버튼이 눌러져 있는경우에 작동. --> 수정완료로 표기되어 있고 == finishModify클래스가 있음.
+      //클릭시 해당 직원의 선택된 일정을 취소. --> 취소목록을 list로 저장.
+      // 수정완료를 누르면 { staffId : [이벤트 id 배열]}을 ajax로 송신.
+        alert('클릭')
+        console.log($('modifyAndCancel').hasClass('finishModify'))
+      if($('#modifyAndCancel').hasClass('finishModify') == true){
+        $('span:contains("'+calEvent.id+'")').parent().parent().removeClass('selectedEvent');
+        unSelectedDataLoc.push(calEvent.id);
+        console.log('삭제목록')
+        console.log(unSelectedDataLoc)
+      }
+    },
   });
 });
 // ./ End of fullCalendar 초기화 -------------------------------------
 
+//화면 재구성함수.
+function remakeDisplayedEvents(antPeopleObjList) {
+  //if(Object.keys(antPeopleObjList).length > 0) {
+  //console.log(antPeopleObjList)
+  //console.log(Object.keys(antPeopleObjList))
+  //console.log(Object.keys(antPeopleObjList).length > 0)
+    for(var key in antPeopleObjList) {
+      //목록으로부터 요구 인원수를 추출.\
+      var pcValue = antPeopleObjList[""+key+""].peopleCount;
+      var mpValue = antPeopleObjList[""+key+""].manPower;
+      var newTitle = antPeopleObjList[""+key+""].title;
 
-/* //버튼 사용안함.
-// 왼쪽 버튼을 클릭하였을 경우
-$(document).on('click','button.fc-prev-button', function() {
-  var date = $("#calendar").fullCalendar("getDate");
-  changeDateInputArea(date);
-});
-// 오른쪽 버튼을 클릭하였을 경우
-$(document).on('click','button.fc-next-button', function() {
-  var date = $("#calendar").fullCalendar("getDate");
-  changeDateInputArea(date);
-});
-// 좌우 버튼 클릭시 input ele의 값을 바꿈.
-function changeDateInputArea(date) {
-  var yearP = date.get('year');
-  var monthP = date.get('month')+1;
-  if(monthP < 10) {
-    monthP = "0" + monthP
-  }
-  var forInput = yearP +"-"+ monthP;
-  $("#monthForPlan").val(forInput);
+      //새로 생성한 tag가 있는경우 --> 값만 변경.
+
+      //tag정보 생성.
+      var mpSpan = $('<span />').addClass('eventMarker').css({'padding-left':3}).text(pcValue+'/'+mpValue+"명");
+      var titleSpan = $('<span />').addClass('eventTitle').css({'margin-left':10}).text(newTitle);
+
+      //존재하는 span을 모두 숨김.
+      $('span:contains("'+key+'").fc-title').css({'display':'none'})
+      $('span:contains("'+key+'")').prev('span.fc-time').css({'display':'none'})
+
+      //생성한 span tag를 추가. - 추가된 span이 이미 있는지 확인 후, 있으면 값만 변경.
+      var checkExist = $('span:contains("'+key+'")').parent().find('.eventMarker');
+
+      if(checkExist.length <= 0) {
+        $('span:contains("'+key+'")').parent().prepend(titleSpan);
+        $('span:contains("'+key+'")').parent().prepend(mpSpan);
+      } else if (checkExist.length > 0) {
+        $('span:contains("'+key+'")').parent().find('.eventMarker').text(pcValue+'/'+mpValue+"명");
+        $('span:contains("'+key+'")').parent().find('.eventTitle').text(newTitle);
+      }
+    }
+  //}
 }
-*/
-
-//>>>추가사항
-//내용이 없는 경우, staffListDiv 숨김
-//캘린더 상단 버튼 누를때마다 가진 정보를 바탕으로 다시 화면을 렌더링.
 
 </script>
 </body>
