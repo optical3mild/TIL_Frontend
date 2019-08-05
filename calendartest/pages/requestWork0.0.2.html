@@ -42,11 +42,11 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Calendar
+        Staff - Request Work
         <small>Control panel</small>
       </h1>
       <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="${path}/main/mainpage"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Calendar</li>
       </ol>
     </section>
@@ -282,7 +282,7 @@ var receiveS = {
   }
 }
 
-//>> requestWork0.0.1
+//>> requestWork0.0.2
 // 페이지 로드 시 DB에서 받은 정보 : eventList (기존과 동일한 장소.)
 $('#calendar').data('eventList',{});
 var originalDataLoc = $('#calendar').data('eventList');
@@ -293,8 +293,8 @@ var initialData = [];
 
 //수신데이터가 있을 경우, 저장.
 //var gotData = $.parseJSON('${jsonList}');
-//var sselectedUserEvent = $.parseJSON('${selectedList}');
-
+//var selectedUserEvent = $.parseJSON('${selectedList}');
+var selectedUserEvent = receiveD;
 // 받은데이터가 있는 경우, calendar element에 data로 저장한다.
 if(gotData != "") {
 	for(var key in gotData) {
@@ -471,16 +471,16 @@ function renderingProcessWithList(eList, sList) {
 }
 
 function createSendingObj(targetEvent, user) {
-  var newObj = {
-    userId : { user_id : user },
-    schedule_id : targetEvent
-  }
+  var newObj = //{
+    //userId : { user_id : user },
+    targetEvent;
+  //}
   return newObj;
 }
 
 function sendInfo(sign, obj) {
   //control url필요.
-  var addPlan = "add" //일정 신청.
+  var addPlan = "requestworking" //일정 신청.
   var rmPlan = "rm" //신청 취소.
   var selectedUrl;
   if(sign) {
@@ -493,7 +493,7 @@ function sendInfo(sign, obj) {
 		url : selectedUrl,
 		method : 'post',
     // data : 서버로 보낼 데이터
-		data : JSON.stringify(obj),
+		data : obj,
     // contentType : 서버로 보낼 데이터의 타입.
     contentType : 'application/json;charset=UTF-8',
     // dataType : 서버로 부터 수신받을 데이터 타입.
