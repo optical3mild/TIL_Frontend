@@ -143,7 +143,7 @@
             <!-- /.box-header -->
             <div class="box-body">
               <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-              <ul class="todo-list">
+              <ul class="todo-list" id="recievedToDoList">
                 <li>
                   <!-- drag handle -->
                   <span class="handle">
@@ -262,7 +262,7 @@
             <!-- /.box-header -->
             <div class="box-body">
               <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-              <ul class="todo-list">
+              <ul class="todo-list" id="sendToDoList">
                 <li>
                   <!-- drag handle -->
                   <span class="handle">
@@ -382,7 +382,8 @@
         <div class="input-group" style="width:100%">
           <div>
             <label>받을사람</label>
-            <input class="form-control" type="text">
+            <div id="memberList"></div>
+            <input id="displaySelectedItem" class="form-control" type="text">
           </div>
           <br><br>
           <div>
@@ -414,6 +415,7 @@
 <script src="../resources/dist/js/adminlte.min.js"></script>
 
 <script>
+/*
 //초기 객체값을 받아 todo구조를 화면에 뿌려준다...
 var initialData = ['test1','test2','test3'];
 var tool = 'test';
@@ -432,8 +434,6 @@ var toDoInitialSet = {
   initialContents : initialData,
 }
 
-
-
 //전체 틀 생성...
 function renderTodo (target, initialSetObj) {
   //헤더 생성
@@ -442,17 +442,132 @@ function renderTodo (target, initialSetObj) {
   var headerTitle = $('<h3 />').addClass('box-title').text(initialSetObj.header.title);
 
 }
+*/
 
+//modal창 직원목록
+var gotPeopleList = [
+  { email : 'testAdmin@gmail.com', userName : '김사장', role : '101'},
+  { email : 'testStaff1@gmail.com', userName : '김사원', role : '102'},
+  { email : 'testStaff2@gmail.com', userName : '이사원', role : '102'},
+  { email : 'testStaff3@gmail.com', userName : '박사원', role : '102'},
+]
+
+
+
+//모달 팝업
 $('#popupToDoBoard').on('click',function() {
+  $('#memberList').empty();
   //ajax통신으로 직원목록을 받음.
+  var staffListSelectionFrame = $('<select />').addClass('peopleSelection');
+  for(var i=0; i<gotPeopleList.length; i++) {
+    var personLabel = $('<option />').text(gotPeopleList[i].userName + '('+gotPeopleList[i].email+')');
+    staffListSelectionFrame.append(personLabel);
+  }
   $('#writeToDoItem').modal('show');
+  $('#memberList').prepend(staffListSelectionFrame);
 });
 
-function addToList(target, toDoDescription, ) {
+//선택한것을 화면에 표시
+$(document).on('change','.peopleSelection',function(){
+//$('#peopleSelection').on('change',function() {
+  alert('클릭')
+  var item = $(".peopleSelection option:selected").val();
+  var itemNamePart = item.slice('(')[0];
+  var targetInputBox = $('#displaySelectedItem');
+  if(targetInputBox.val() == '') {
+    targetInputBox.val(item);
+  } else {
+    targetInputBox.val(targetInputBox.val() +','+item)
+  }
+
+})
+
+//수신리스트 하나.
+var testRecievedItem = {
+  id : '210',
+  description : 'received - test1',
+  fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+  state : 'true',
+}
+
+//보낸리스트 하나.
+var testSendOneItem = {
+  id : '110',
+  description : 'send - test1',
+  //확인하지 않은 사람
+  checkperson : '0',
+}
+
+
+
+// 직위별 라벨스타일 지정
+var roleColor = {
+  '101' : 'label-danger' , '102' : 'label-primary'
+}
+
+$(function() {
+  //보낸 목록의 정보를 보낸리스트에 추가.
+  var targetForSend = '#sendToDoList';
+  var descForSend = testSendOneItem.description;
+  var checkedPerson = testSendOneItem.checkperson;
+  addToSendToDoList(targetForSend,descForSend,checkedPerson);
+
+  //수신한 목록의 정보를 수신리스트에 추가.
+  var target = '#recievedToDoList';
+  var desc = testRecievedItem.description;
+  var fromU = testRecievedItem.fromUser;
+  var sta = testRecievedItem.state;
+  addToReceivedToDoList(target,desc,fromU,sta);
+})
+
+
+
+//객체하나로 보낸부분 할일 한줄 추가.
+function addToSendToDoList(target,desc,nCheckP) {
+  var labelStyle;
+  var checkIcon;
+  if(nCheckP == '0') {
+    labelStyle = 'label-success';
+    checkIcon = $('<i />').addClass('fa fa-check-square-o');
+  } else {
+    labelStyle = 'label-default';
+    checkIcon = $('<i />').addClass('fa fa-square-o');
+  }
+
   var frameLi = $('<li />');
-  var dragHandle = $('<span />').addClass('handle');
-  var inputTagCheckBox = $('<input />').attr('type', 'text')
-  var descText = $('<span />').addClass('text');
+  var inputTagCheckBox = $('<input />').attr('type', 'checkbox');
+  var checkPerson = $('<small />').addClass('label ' +labelStyle+'').text(" Remain : "+nCheckP+"명");
+  var descText = $('<span />').addClass('text').text(desc);
+
+  checkPerson.prepend(checkIcon);
+
+  frameLi.append(inputTagCheckBox);
+  frameLi.append(checkPerson);
+  frameLi.append(descText);
+
+
+  $(''+target+'').prepend(frameLi);
+}
+
+
+//객체 하나로 수신부분 할일 한줄 추가.
+function addToReceivedToDoList(target, toDoDescription, fUserObj, state) {
+  var userId =  fUserObj.user_id;
+  var userName = fUserObj.userName;
+  var userRole = fUserObj.role;
+
+  var labelStyle = roleColor[""+userRole+""];
+
+  var frameLi = $('<li />');
+  var inputTagCheckBox = $('<input />').attr('type', 'checkbox');
+  var fromUser = $('<small />').addClass('label ' +labelStyle+'').text(userName);
+  var descText = $('<span />').addClass('text').text(toDoDescription);
+
+  frameLi.append(inputTagCheckBox);
+  frameLi.append(fromUser);
+  frameLi.append(descText);
+
+  $(''+target+'').prepend(frameLi);
 
 }
 </script>
