@@ -21,6 +21,43 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
+  <style>
+    li > .label {
+      position : relative;
+      bottom : 2px;
+    }
+    li > input[type=checkbox] {
+      position : relative;
+      top : 2.5px;
+    }
+
+    .toUserFrame {
+      /*position : absolute;
+      left : 0;
+      top : 0;
+      */
+      overflow-x : visible;
+      width : 100%;
+      height : 3.2rem;
+      border : 1px solid lightgrey;
+      font-size : 1rem;
+    }
+    .itemFrame {
+      width : fit-content;
+      border-radius : 0.5rem;
+      border : 1px solid lightblue;
+    }
+    .itemDelSign {
+      font-size : 1.5rem;
+      color: #e14242;
+      opacity: 0.5;
+    }
+    .itemDelSign:hover {
+      opacity: 1;
+    }
+
+  </style>
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -147,9 +184,9 @@
                 <li>
                   <!-- drag handle -->
                   <span class="handle">
-                        <i class="fa fa-ellipsis-v"></i>
-                        <i class="fa fa-ellipsis-v"></i>
-                      </span>
+                    <i class="fa fa-ellipsis-v"></i>
+                    <i class="fa fa-ellipsis-v"></i>
+                  </span>
                   <!-- checkbox -->
                   <input type="checkbox" value="">
                   <!-- todo text -->
@@ -382,8 +419,14 @@
         <div class="input-group" style="width:100%">
           <div>
             <label>받을사람</label>
-            <div id="memberList"></div>
-            <input id="displaySelectedItem" class="form-control" type="text">
+
+              <div id="memberList"></div>
+              <!--
+              <input id="displaySelectedItem" class="form-control" type="text">
+              <textarea id="displaySelectedItem" name="name" rows="8" style="width:100%"></textarea>
+              -->
+              <div id="displaySelectedItem" class="toUserFrame"></div>
+
           </div>
           <br><br>
           <div>
@@ -441,6 +484,7 @@ function renderTodo (target, initialSetObj) {
   var headerTitle = $('<h3 />').addClass('box-title').text(initialSetObj.header.title);
 }
 */
+
 //modal창 직원목록
 var gotPeopleList = [
   { email : 'testAdmin@gmail.com', userName : '김사장', role : '101'},
@@ -448,11 +492,12 @@ var gotPeopleList = [
   { email : 'testStaff2@gmail.com', userName : '이사원', role : '102'},
   { email : 'testStaff3@gmail.com', userName : '박사원', role : '102'},
 ]
+
 //모달 팝업
 $('#popupToDoBoard').on('click',function() {
   $('#memberList').empty();
   //ajax통신으로 직원목록을 받음.
-  var staffListSelectionFrame = $('<select />').addClass('peopleSelection');
+  var staffListSelectionFrame = $('<select />').addClass('peopleSelection')//.css({'position': 'absolute', 'left':0,'bottom':0});
   for(var i=0; i<gotPeopleList.length; i++) {
     var personLabel = $('<option />').text(gotPeopleList[i].userName + '('+gotPeopleList[i].email+')');
     staffListSelectionFrame.append(personLabel);
@@ -460,19 +505,55 @@ $('#popupToDoBoard').on('click',function() {
   $('#writeToDoItem').modal('show');
   $('#memberList').prepend(staffListSelectionFrame);
 });
+
+/*
+//모달창에서 보낼대상을 입력할 창을 클릭하면 select 창이 생성되고, 선택하면 input tag가 생성되어 들어간다.
+$('#displaySelectedItem').on('click', function(){
+
+  var newItemFrame = $('<div />').addClass('itemFrame');
+  var newItem = $('<input />').attr('type','text').attr('disabled',true).addClass('toWho');
+  var deleteIcon = $('<i />').addClass('fa fa-times itemDelSign')
+  newItemFrame.append(newItem);
+  newItemFrame.append(deleteIcon);
+  var thisDiv = $(this);
+  console.log('thisDiv.find("div").length')
+  console.log(thisDiv.find('div').length )
+  if(thisDiv.find('div').length == 0){
+    thisDiv.append(newItemFrame);
+  } else if(thisDiv.last('input').val() != '') {
+    thisDiv.append(newItemFrame);
+  }
+  $('.peopleSelection').trigger('click');
+
+  //$(this).append(newItemFrame);
+
+})
+*/
+
+
 //선택한것을 화면에 표시
 $(document).on('change','.peopleSelection',function(){
-//$('#peopleSelection').on('change',function() {
-  alert('클릭')
   var item = $(".peopleSelection option:selected").val();
-  var itemNamePart = (item.split('('))[0];
+  alert('클릭')
+  //var itemNamePart = (item.split('('))[0];
+  //console.log('itemNamePart')
+  //console.log(itemNamePart)
+  var newItemFrame = $('<div />').addClass('itemFrame');
+  var newItem = $('<input />').attr('type','text').attr('disabled',true).addClass('toWho');
+  var deleteIcon = $('<i />').addClass('fa fa-times itemDelSign')
+  newItem.val(item);
+  newItemFrame.append(newItem);
+  newItemFrame.append(deleteIcon);
+
   var targetInputBox = $('#displaySelectedItem');
-  if(targetInputBox.val() == '') {
-    targetInputBox.val(item);
-  } else {
-    targetInputBox.val(targetInputBox.val() +','+item)
+  targetInputBox.append(newItemFrame);
+  if(targetInputBox.find('input').val(item) == false){
+    targetInputBox.append(newItemFrame);
+
   }
+
 })
+
 //수신리스트 하나.
 var testRecievedItem = {
   id : '210',
