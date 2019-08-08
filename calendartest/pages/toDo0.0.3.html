@@ -448,7 +448,7 @@
       </div>
       <div class="modal-footer">
         <!-- 이벤트 생성, 창닫기 -->
-        <button id="makeToDoItem" class="btn btn-primary btn-flat pull-right colorButton" type="button" data-dismiss="modal">확인</button>
+        <button id="makeToDoItem" class="btn btn-primary btn-flat pull-right" type="button" data-dismiss="modal">확인</button>
         <button class="btn btn-primary btn-flat pull-left" type="button" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">취소</span>
         </button>
@@ -468,48 +468,31 @@
 <script src="../resources/dist/js/adminlte.min.js"></script>
 
 <script>
-$(function(){
-  /*
-  var targetBroList = $('.adjustHeight').siblings();
-  console.log(targetBroList.length);
-  var calHeight = 0;
-  for(var i=0; i<targetBroList.length; i++) {
-    console.log('돌아라')
-    var standardH = parseInt($('.adjustHeight').eq(i).css('height'));
-    console.log('standardH')
-    console.log(i+" "+standardH)
+//받은목록과 보낸목록을 data로 각 위치에 저장.
+var rListObj = {};
+var receivedDataLoc = $('#recievedToDoList').data('receivedList',rListObj);
+var sListObj = {};
+var sendDataLoc = $('#sendToDoList').data('sendList',sListObj);
 
-    if(standardH >= 0) {
-      calHeight = standardH;
-    }
-  }
-  //var standardH = $('.adjustHeight').parent().eq(index).css('height');
-  $('.adjustHeight').css('height',calHeight);
-  $('.adjustHeight').children().css('height',calHeight);
-  console.log('calHeight')
-  console.log(calHeight)
-  console.log('adjustHeight')
-  console.log($('.adjustHeight').css('height'));
-  */
+
+//높이조정 실행.
+$(function(){
   var target = '.adjustHeight';
   adjustH(target);
 })
-var target = '.adjustHeight';
+//var target = '.adjustHeight';
 function adjustH(target) {
   var targetBroList = $(target).siblings();
   console.log(targetBroList.length);
   var calHeight = 0;
   for(var i=0; i<targetBroList.length; i++) {
-    console.log('돌아라')
     var standardH = parseInt($(target).eq(i).css('height'));
     console.log('standardH')
     console.log(i+" "+standardH)
-
     if(standardH >= 0) {
       calHeight = standardH;
     }
   }
-  //var standardH = $('.adjustHeight').parent().eq(index).css('height');
   $(target).css('min-height',calHeight);
   $(target).children().css('min-height',calHeight);
   console.log('calHeight')
@@ -547,13 +530,16 @@ $('#popupToDoBoard').on('click',function() {
 //선택한것을 화면에 표시
 $(document).on('change','.peopleSelection',function(){
   var item = $(".peopleSelection option:selected").val();
-  var mailKey = (item.split('('))[1];
+  var mailKey = (item.split('('))[1].replace(')','');
   var selectedObj;
   for(var i=0; i<gotPeopleList.length; i++) {
     if(gotPeopleList[i].email == mailKey) {
       selectedObj = $.extend({},gotPeopleList[i]);
+      console.log('selectedObj')
+      console.log(selectedObj)
     }
   }
+
   var targetInputBox = $('#displaySelectedItem');
   console.log(item)
   console.log(targetInputBox.find('.toWho').length > 0)
@@ -587,8 +573,11 @@ $(document).on('click','.itemDelSign',function(){
 //입력창에 선택한 정보 추가.
 function addToUser (targetDiv, selectionValue, obj) {
   var newItemFrame = $('<div />').addClass('itemFrame');
+  newItemFrame.data('thisUserObj',obj);
   var newItem = $('<input />').attr('type','text').attr('disabled',true).addClass('toWho');
-  var deleteIcon = $('<i />').addClass('fa fa-times itemDelSign')
+  var deleteIcon = $('<i />').addClass('fa fa-times itemDelSign');
+  console.log('thisUserObj확인')
+  console.log(newItemFrame.data('thisUserObj'))
   newItem.val(selectionValue);
   newItemFrame.append(newItem);
   newItemFrame.append(deleteIcon);
@@ -599,7 +588,17 @@ function addToUser (targetDiv, selectionValue, obj) {
 $('#makeToDoItem').on('click',function(){
   var thisDesc = $('#inputDescription').val();
   var toWhoList =  $('#displaySelectedItem').find('.toWho');
+
+  
   var toUserList = [];
+  toUserList.push($('#displaySelectedItem').find('.itemFrame').data('thisUserObj'));
+  console.log('toUserList')
+  console.log(toUserList)
+  for(var i=0; toFrameList.length; i++) {
+
+    console.log(toFrameList[i].data('thisUserObj'))
+  }
+  /*
   for(var i=0; i<toWhoList.length; i++) {
     console.log(toWhoList[i].value)
     var existItemKey = toWhoList[i].value.split('(')[1].replace(')',''); //이메일
@@ -614,18 +613,95 @@ $('#makeToDoItem').on('click',function(){
       }
     }
   }
+  */
   //입력내용을 바탕으로 보낼 객체 생성.
   var sendObj = {
     description : thisDesc,
     toUsers : toUserList,
   }
-  var sendDummy
+  //전송 후 결과 리턴 --> 결과는 양쪽리스트 전체를 받아오는 것.
+  //var communicateResult = communicateSubmit(sendObj);
+  var commResult = dummyResult;
+
+  //화면 재구성.
+  //1. 현재내용 삭제
+  //2. 새로 구성
+  reWriteProcess(commResult);
 })
 
 //작성 버튼 클릭 시 동작할 ajax통신.
 function communicateSubmit(sendObj) {
-
+  console.log('전송')
+  console.log(sendObj);
 }
+
+var dummyResult = {
+  forRecievedList : [
+    {
+      id : '210',
+      description : 'received - test1',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'true',
+    },
+    {
+      id : '210',
+      description : 'received - test1',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'true',
+    },
+    {
+      id : '210',
+      description : 'received - test1',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'true',
+    }
+  ],
+  forSendList : [
+    {
+      id : '110',
+      description : 'send - test1',
+      checkperson : '0',
+    },
+    {
+      id : '110',
+      description : 'send - test1',
+      checkperson : '0',
+    },
+    {
+      id : '110',
+      description : 'send - test1',
+      checkperson : '0',
+    }
+  ]
+}
+
+//받은 정보를 바탕으로 toDo 리스트들을 다시 구성한다. (범용, 통신이후 받은 목록을 바탕으로 다시 그릴 것.)
+function reWriteProcess(communicateResult) {
+  //리스트 분배 - 받은객체를 있던 정보에 덮어씀.
+  receivedDataLoc = dummyResult.forRecievedList;
+  sendDataLoc = dummyResult.forSendList;
+
+  //화면을 비움
+  //#recievedToDoList
+  //#sendToDoList
+  $('#recievedToDoList').empty();
+  $('#sendToDoList').empty();
+  for(var key in receivedDataLoc) {
+    var target = '#recievedToDoList';
+    var desc = receivedDataLoc[key].description;
+    var fromU = receivedDataLoc[key].fromUser;
+    var sta = receivedDataLoc[key].state;
+    addToReceivedToDoList(target,desc,fromU,sta);
+  }
+  for(var key in sendDataLoc) {
+    var targetForSend = '#sendToDoList';
+    var descForSend = sendDataLoc[key].description;
+    var checkedPerson = sendDataLoc[key].checkperson;
+    addToSendToDoList(targetForSend,descForSend,checkedPerson);
+  }
+}
+
+
 
 // ./ end of 1. modal창 ----------------------------------------------------------------
 
