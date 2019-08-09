@@ -172,20 +172,12 @@
 
           <!-- TO DO List -->
           <div class="box box-primary">
-            <div class="box-header">
+            <div class="box-header" style="border-bottom: 1px solid #f4f4f4;">
               <i class="ion ion-clipboard"></i>
 
               <h3 class="box-title">To Do List: 수신,확인기능</h3>
 
-              <div class="box-tools pull-right">
-                <ul class="pagination pagination-sm inline">
-                  <li><a href="#">&laquo;</a></li>
-                  <li><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                  <li><a href="#">3</a></li>
-                  <li><a href="#">&raquo;</a></li>
-                </ul>
-              </div>
+
             </div>
             <!-- /.box-header -->
             <div class="box-body">
@@ -278,7 +270,15 @@
             </div>
             <!-- /.box-body -->
             <div class="box-footer clearfix no-border">
-              <button type="button" class="btn btn-default pull-right"><i class="fa fa-plus"></i> Add item</button>
+              <div id="receivedListPageBtn">
+                <ul class="pagination pagination-sm inline">
+                  <li><a href="#">&laquo;</a></li>
+                  <li><a href="#">1</a></li>
+                  <li><a href="#">2</a></li>
+                  <li><a href="#">3</a></li>
+                  <li><a href="#">&raquo;</a></li>
+                </ul>
+              </div>
             </div>
           </div>
           <!-- /.box -->
@@ -291,19 +291,13 @@
         <section class="col-lg-4 connectedSortable adjustHeight">
 		  <!-- TO DO List -->
           <div class="box box-primary">
-            <div class="box-header">
+            <div class="box-header" style="border-bottom: 1px solid #f4f4f4;">
               <i class="ion ion-clipboard"></i>
 
               <h3 class="box-title">User TODO List : 작성,전달.</h3>
 
               <div class="box-tools pull-right">
-                <ul class="pagination pagination-sm inline">
-                  <li><a href="#">&laquo;</a></li>
-                  <li><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                  <li><a href="#">3</a></li>
-                  <li><a href="#">&raquo;</a></li>
-                </ul>
+                <button id="popupToDoBoard" type="button" class="btn btn-default pull-right"><i class="fa fa-plus"></i> Add item</button>
               </div>
             </div>
             <!-- /.box-header -->
@@ -397,7 +391,17 @@
             </div>
             <!-- /.box-body -->
             <div class="box-footer clearfix no-border">
-              <button id="popupToDoBoard" type="button" class="btn btn-default pull-right"><i class="fa fa-plus"></i> Add item</button>
+              <div id="sendListPageBtn">
+                <!--
+                <ul class="pagination pagination-sm inline">
+                  <li><a href="#">&laquo;</a></li>
+                  <li><a href="#">1</a></li>
+                  <li><a href="#">2</a></li>
+                  <li><a href="#">3</a></li>
+                  <li><a href="#">&raquo;</a></li>
+                </ul>
+              -->
+              </div>
             </div>
           </div>
           <!-- /.box -->
@@ -438,7 +442,7 @@
               <div id="displaySelectedItem" class="toUserFrame"></div>
 
           </div>
-          <br><br>
+          <br>
           <div>
             <label>내용</label>
             <input id="inputDescription"class="form-control" type="text">
@@ -468,13 +472,85 @@
 <script src="../resources/dist/js/adminlte.min.js"></script>
 
 <script>
-//받은목록과 보낸목록을 data로 각 위치에 저장.
-var rListObj = {};
-var receivedDataLoc = $('#recievedToDoList').data('receivedList',rListObj);
-var sListObj = {};
-var sendDataLoc = $('#sendToDoList').data('sendList',sListObj);
-
-
+var dummyInitialData = {
+  forRecievedList : [
+    {
+      id : '211',
+      description : 'received - test1',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'true',
+    },
+    {
+      id : '212',
+      description : 'received - test2',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'true',
+    },
+    {
+      id : '213',
+      description : 'received - test3',
+      fromUser : { user_id : 'testAdmin', userName : '김사원', role : '102'},
+      state : 'false',
+    },
+    {
+      id : '214',
+      description : 'received - test4',
+      fromUser : { user_id : 'testAdmin', userName : '이사원', role : '102'},
+      state : 'false',
+    },
+    {
+      id : '215',
+      description : 'received - test5',
+      fromUser : { user_id : 'testAdmin', userName : '박사원', role : '102'},
+      state : 'true',
+    },
+    {
+      id : '216',
+      description : 'received - test6',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'false',
+    },
+    {
+      id : '216',
+      description : 'received - test6',
+      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
+      state : 'false',
+    },
+  ],
+  forSendList : [
+    { id : '111', description : 'send - test1', checkperson : '0', },
+    { id : '112', description : 'send - test2', checkperson : '2', },
+    { id : '113', description : 'send - test3', checkperson : '3', },
+    { id : '114', description : 'send - test4', checkperson : '0', },
+    { id : '115', description : 'send - test5', checkperson : '5', },
+    { id : '116', description : 'send - test6', checkperson : '1', },
+    { id : '117', description : 'send - test7', checkperson : '1', },
+    { id : '118', description : 'send - test8', checkperson : '1', },
+    { id : '119', description : 'send - test9', checkperson : '1', },
+    { id : '120', description : 'send - test10', checkperson : '1', },
+    { id : '121', description : 'send - test11', checkperson : '1', },
+    { id : '122', description : 'send - test12', checkperson : '1', },
+    { id : '123', description : 'send - test13', checkperson : '1', },
+    { id : '124', description : 'send - test14', checkperson : '1', },
+    { id : '125', description : 'send - test15', checkperson : '1', },
+    { id : '126', description : 'send - test16', checkperson : '1', },
+    { id : '127', description : 'send - test17', checkperson : '1', },
+    { id : '128', description : 'send - test18', checkperson : '1', },
+    { id : '129', description : 'send - test19', checkperson : '1', },
+    { id : '130', description : 'send - test20', checkperson : '1', },
+    { id : '131', description : 'send - test21', checkperson : '1', },
+    { id : '132', description : 'send - test22', checkperson : '1', },
+    { id : '133', description : 'send - test23', checkperson : '1', },
+    { id : '134', description : 'send - test24', checkperson : '1', },
+    { id : '135', description : 'send - test25', checkperson : '1', },
+    { id : '136', description : 'send - test26', checkperson : '1', },
+    { id : '137', description : 'send - test27', checkperson : '1', },
+    { id : '138', description : 'send - test28', checkperson : '1', },
+    { id : '139', description : 'send - test29', checkperson : '1', },
+    { id : '140', description : 'send - test30', checkperson : '1', },
+    { id : '141', description : 'send - test31', checkperson : '1', },
+  ]
+}
 //높이조정 실행.
 $(function(){
   var target = '.adjustHeight';
@@ -500,6 +576,13 @@ function adjustH(target) {
   console.log('adjustHeight')
   console.log($(target).css('height'));
 }
+
+
+//받은목록과 보낸목록을 data로 각 위치에 저장.
+var rListObj = {};
+var receivedDataLoc = $('#recievedToDoList').data('receivedList',rListObj);
+var sListObj = {};
+var sendDataLoc = $('#sendToDoList').data('sendList',sListObj);
 
 
 // 1. modal ------------------------------------------------------------------------------------
@@ -573,11 +656,11 @@ $(document).on('click','.itemDelSign',function(){
 //입력창에 선택한 정보 추가.
 function addToUser (targetDiv, selectionValue, obj) {
   var newItemFrame = $('<div />').addClass('itemFrame');
-  newItemFrame.data('thisUserObj',obj);
   var newItem = $('<input />').attr('type','text').attr('disabled',true).addClass('toWho');
+  newItem.data('thisUserObj',obj);
   var deleteIcon = $('<i />').addClass('fa fa-times itemDelSign');
   console.log('thisUserObj확인')
-  console.log(newItemFrame.data('thisUserObj'))
+  console.log(newItem.data('thisUserObj'))
   newItem.val(selectionValue);
   newItemFrame.append(newItem);
   newItemFrame.append(deleteIcon);
@@ -588,37 +671,21 @@ function addToUser (targetDiv, selectionValue, obj) {
 $('#makeToDoItem').on('click',function(){
   var thisDesc = $('#inputDescription').val();
   var toWhoList =  $('#displaySelectedItem').find('.toWho');
-
-  
   var toUserList = [];
-  toUserList.push($('#displaySelectedItem').find('.itemFrame').data('thisUserObj'));
+  //toUserList.push($('#displaySelectedItem').find('.itemFrame').data('thisUserObj'));
   console.log('toUserList')
   console.log(toUserList)
-  for(var i=0; toFrameList.length; i++) {
-
-    console.log(toFrameList[i].data('thisUserObj'))
-  }
-  /*
   for(var i=0; i<toWhoList.length; i++) {
-    console.log(toWhoList[i].value)
-    var existItemKey = toWhoList[i].value.split('(')[1].replace(')',''); //이메일
-    for(var j=0; j<gotPeopleList.length; j++) {
-      var gListItem = gotPeopleList[j];
-      console.log(gListItem)
-      console.log(gListItem.email)
-      console.log(existItemKey)
-      if(gListItem.email == existItemKey) {
-        console.log('탐색')
-        toUserList.push(gListItem);
-      }
-    }
+    console.log(toWhoList.eq(i).data('thisUserObj'));
+    toUserList.push(toWhoList.eq(i).data('thisUserObj'))
   }
-  */
   //입력내용을 바탕으로 보낼 객체 생성.
   var sendObj = {
-    description : thisDesc,
-    toUsers : toUserList,
+    description : thisDesc, // 내용
+    toUsers : toUserList, // [ {email:, user:, role:},{},{} ]
   }
+  console.log('전송')
+  console.log(sendObj);
   //전송 후 결과 리턴 --> 결과는 양쪽리스트 전체를 받아오는 것.
   //var communicateResult = communicateSubmit(sendObj);
   var commResult = dummyResult;
@@ -626,7 +693,8 @@ $('#makeToDoItem').on('click',function(){
   //화면 재구성.
   //1. 현재내용 삭제
   //2. 새로 구성
-  reWriteProcess(commResult);
+  //reWriteProcess(commResult);
+  reWriteProcess(5, 1, communicateResult)
 })
 
 //작성 버튼 클릭 시 동작할 ajax통신.
@@ -634,6 +702,8 @@ function communicateSubmit(sendObj) {
   console.log('전송')
   console.log(sendObj);
 }
+
+
 
 var dummyResult = {
   forRecievedList : [
@@ -676,10 +746,10 @@ var dummyResult = {
 }
 
 //받은 정보를 바탕으로 toDo 리스트들을 다시 구성한다. (범용, 통신이후 받은 목록을 바탕으로 다시 그릴 것.)
-function reWriteProcess(communicateResult) {
+function reWriteProcess(displayItemNum, thisPageNum, communicateResult) {
   //리스트 분배 - 받은객체를 있던 정보에 덮어씀.
-  receivedDataLoc = dummyResult.forRecievedList;
-  sendDataLoc = dummyResult.forSendList;
+  receivedDataLoc = communicateResult.forRecievedList;
+  sendDataLoc = communicateResult.forSendList;
 
   //화면을 비움
   //#recievedToDoList
@@ -688,23 +758,40 @@ function reWriteProcess(communicateResult) {
   $('#sendToDoList').empty();
   for(var key in receivedDataLoc) {
     var target = '#recievedToDoList';
-    var desc = receivedDataLoc[key].description;
-    var fromU = receivedDataLoc[key].fromUser;
-    var sta = receivedDataLoc[key].state;
-    addToReceivedToDoList(target,desc,fromU,sta);
+    var thisObj = receivedDataLoc[key];
+    addToReceivedToDoList(target,thisObj);
   }
-  for(var key in sendDataLoc) {
+
+  //역순으로 표시
+  var skeyArray = Object.keys(sendDataLoc);
+  console.log('skeyArray')
+  console.log(skeyArray)
+
+  var displayItemEndNum = (skeyArray.length) - (thisPageNum-1) * displayItemNum;
+
+  var displayItemStNum = displayItemEndNum - displayItemNum;
+  //한페이지에 표시할 아이템수가 부족한 경우
+  if(displayItemStNum < 0) {
+    displayItemStNum = 0;
+  }
+  for(var i = displayItemStNum; i < displayItemEndNum; i++) {
+    console.log('i')
+    console.log(i)
+  //for(var key in sendDataLoc) {
     var targetForSend = '#sendToDoList';
-    var descForSend = sendDataLoc[key].description;
-    var checkedPerson = sendDataLoc[key].checkperson;
-    addToSendToDoList(targetForSend,descForSend,checkedPerson);
+    //var thisItemKey = skeyArray[""+i+""];
+    var thisObj = sendDataLoc[""+i+""];
+    //console.log('thisItemKey')
+    //console.log(thisItemKey)
+    console.log('thisObj')
+    console.log(thisObj)
+
+    addToSendToDoList(targetForSend,thisObj);
   }
+
 }
 
-
-
 // ./ end of 1. modal창 ----------------------------------------------------------------
-
 
 
 
@@ -727,53 +814,184 @@ var roleColor = {
   '101' : 'label-danger' , '102' : 'label-primary'
 }
 $(function() {
-  //보낸 목록의 정보를 보낸리스트에 추가.
+  /*//보낸 목록의 정보를 보낸리스트에 추가.
   var targetForSend = '#sendToDoList';
-  var descForSend = testSendOneItem.description;
-  var checkedPerson = testSendOneItem.checkperson;
-  addToSendToDoList(targetForSend,descForSend,checkedPerson);
+  var testSendObj = testSendOneItem;
+  addToSendToDoList(targetForSend,testSendObj);
   //수신한 목록의 정보를 수신리스트에 추가.
   var target = '#recievedToDoList';
-  var desc = testRecievedItem.description;
-  var fromU = testRecievedItem.fromUser;
-  var sta = testRecievedItem.state;
-  addToReceivedToDoList(target,desc,fromU,sta);
+  var testRecievedObj = testRecievedItem;
+  addToReceivedToDoList(target,testRecievedObj);
+*/
+  //초기화면 그리기
+  reWriteProcess(5, 2, dummyInitialData);
+
+  var recievedListPageBtnLoc = '#receivedListPageBtn';
+  var sendListPageBtnLoc = '#sendListPageBtn';
+
+  //---------------------------------------
+  makePageButton(5, 2, sendListPageBtnLoc, sendDataLoc)
+
 })
+
+//페이지 버튼 생성
+function makePageButton(numOfDisplay, nowPage, displayTarget, dataListLoc) {
+  //버튼을 표시할 위치
+  var target = $(''+displayTarget+'');
+  var dataList = sendDataLoc;
+
+  // 1,2,3 --> 1부터 시작, 6,7,8 --> 6부터, 11,12,13 --> 11부터
+  var startNum;
+  if(nowPage % numOfDisplay < numOfDisplay) {
+    startNum = (nowPage/numOfDisplay) * numOfDisplay;
+  }
+
+  var lastNum = startNum + numOfDisplay;
+
+
+  //페이지 개수 = 페이지 버튼 개수
+  var numOfBtn = (Object.keys(dataList).length) / numOfDisplay;
+
+  //페이지의 갯수보다 생성될 버튼의 갯수가 많은경우
+  if(lastNum > numOfBtn) {
+    lastNum = numOfBtn;
+  }
+
+
+  var ulFrame = $('<ul />').addClass('pagination pagination-sm inline');
+  var leftBtnFr = $('<li />')
+  var leftBtn = $('<a />').addClass('prevBtnList').text('<<');
+  var rightBtnFr = $('<li />')
+  var rightBtn = $('<a />').addClass('nextBtnList').text('>>');
+
+  leftBtnFr.append(leftBtn);
+  rightBtnFr.append(rightBtn);
+
+  //draw list
+  for(var i=startNum; i<lastNum; i++) {
+    var liFrame = $('<li />')
+    var pageBtn = $('<a />').addClass('pageBtn').text(i);
+    if(i == startNum) {
+      pageBtn.css({'font-weight':'bold','background-color':'#ccc','opacity':'0.8'})
+    }
+
+    liFrame.append(pageBtn);
+    ulFrame.append(liFrame);
+  }
+
+  ulFrame.prepend(leftBtnFr);
+  ulFrame.append(rightBtnFr);
+  target.append(ulFrame);
+  //개수를 확인하여 버튼박스 만듦.
+}
+
+
 //객체하나로 보낸부분 할일 한줄 추가.
-function addToSendToDoList(target,desc,nCheckP) {
+function addToSendToDoList(target,obj) {
+  var desc = obj.description;
+  var nCheckP = obj.checkperson;
+
   var labelStyle;
   var checkIcon;
+  var checkHandle;
   if(nCheckP == '0') {
     labelStyle = 'label-success';
     checkIcon = $('<i />').addClass('fa fa-check-square-o');
+    checkHandle = $('<i />').addClass('fa fa-check');
   } else {
     labelStyle = 'label-default';
     checkIcon = $('<i />').addClass('fa fa-square-o');
+    checkHandle = $('<i />').addClass('fa fa-circle-o-notch');
   }
   var frameLi = $('<li />');
-  var inputTagCheckBox = $('<input />').attr('type', 'checkbox');
+  var handle = $('<span />').addClass('handle')//.css('width','8.5px');
   var checkPerson = $('<small />').addClass('label ' +labelStyle+'').text(" Remain : "+nCheckP+"명");
   var descText = $('<span />').addClass('text').text(desc);
+  var delDiv = $('<div />').addClass('tools');
+  var delIcon = $('<i />').addClass('fa fa-trash-o toolOnList sendListDel').data('thisItemObj', obj);
+
+  handle.append(checkHandle);
   checkPerson.prepend(checkIcon);
-  frameLi.append(inputTagCheckBox);
+  delDiv.append(delIcon);
+
+  frameLi.append(handle);
   frameLi.append(checkPerson);
   frameLi.append(descText);
+  frameLi.append(delDiv);
   $(''+target+'').prepend(frameLi);
 }
 //객체 하나로 수신부분 할일 한줄 추가.
-function addToReceivedToDoList(target, toDoDescription, fUserObj, state) {
-  var userId =  fUserObj.user_id;
-  var userName = fUserObj.userName;
-  var userRole = fUserObj.role;
+function addToReceivedToDoList(target, obj) {
+  var desc = obj.description;
+  var fUseObj = obj.fromUser;
+  var state = obj.state; // true - 확인, false - 미확인
+
+  var userId =  fUseObj.user_id;
+  var userName = fUseObj.userName;
+  var userRole = fUseObj.role;
+
+  var checkHandle;
+  var toolIcon;
+  if(state == 'true') {
+    checkHandle = $('<i />').addClass('fa fa-check')
+    toolIcon = $('<i />').addClass('fa fa-trash-o toolOnList receivedListDel').data('thisItemObj', obj);
+  } else {
+    checkHandle = $('<i />').addClass('fa fa-circle-o-notch');
+    toolIcon = $('<i />').addClass('fa fa-check toolOnList receivedListCheck').data('thisItemObj', obj);
+  }
+
   var labelStyle = roleColor[""+userRole+""];
   var frameLi = $('<li />');
-  var inputTagCheckBox = $('<input />').attr('type', 'checkbox');
+  var handle = $('<span />').addClass('handle')
   var fromUser = $('<small />').addClass('label ' +labelStyle+'').text(userName);
-  var descText = $('<span />').addClass('text').text(toDoDescription);
-  frameLi.append(inputTagCheckBox);
+  var descText = $('<span />').addClass('text').text(desc);
+  var toolDiv = $('<div />').addClass('tools');
+  handle.append(checkHandle);
+  toolDiv.append(toolIcon);
+
+  frameLi.append(handle);
   frameLi.append(fromUser);
   frameLi.append(descText);
+  frameLi.append(toolDiv);
   $(''+target+'').prepend(frameLi);
+}
+
+//tool버튼 클릭 시, class를 읽어 작동.
+$(document).on('click','.toolOnList',function(){
+  var selected = $(this);
+  var selectedData = $(this).data('thisItemObj');
+  var target;
+  if(selected.hasClass('sendListDel')) {
+    target = 'sendListDel';
+  } else if(selected.hasClass('receivedListDel')) {
+    target = 'receivedListDel';
+  } else if(selected.hasClass('receivedListCheck')) {
+    target = 'receivedListCheck';
+  }
+  //var communicateResult = toolButtonOnList(target, selectedData);
+  console.log('확인')
+  console.log(target);
+  console.log(selectedData);
+
+  //화면 재구성.
+  //1. 현재내용 삭제
+  //2. 새로 구성
+  //reWriteProcess(communicateResult);
+  toolButtonOnList(target, selectedData)
+})
+
+function toolButtonOnList(target, selectedData) {
+  var targetUrl;
+  if(target == 'sendListDel') {
+    targetUrl = 'senditemdelete';
+  } else if(target == 'receivedListDel') {
+    targetUrl = 'receiveditemdelete';
+  } else if(target == 'receivedListCheck') {
+    targetUrl = 'receiveditemcheck';
+  }
+  console.log(targetUrl);
+  console.log(selectedData);
+  //ajax통신, 리턴값으로 전체를 받아옴
 }
 </script>
 </body>
