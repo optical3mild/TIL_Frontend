@@ -23,7 +23,8 @@
 > #####	8.01 : mainpage - toDo -- 기능개발 시작.
 > #####	8.04 : accept0.0.1 업데이트.
 > #####	8.05 : requestWork0.0.3 업데이트.
-> #####	8.07 : toDo0.0.3 작업중.
+> #####	8.07 : toDo0.0.3 작업중 --> 기능수정으로 0.0.4로 업데이트하여 진행.
+>#####	8.11 : toDo0.0.4 업데이트. -- antpeopleproject에 업데이트 완료. (크기조정기능, 캐러셀 포함)
 
 ### 3. antPeopleViewPart : antPeopleProject에 사용할 view 개발관련 (7.14~)
 > ###### 7.14 : 초기 page레이아웃 업데이트 (index, calendar, top, nav, login) 
