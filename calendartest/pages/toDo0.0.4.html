@@ -23,7 +23,13 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
   <link rel="stylesheet" href="../resources/dist/css/skins/skin-blue.css">
-  
+
+  <style>
+    .item {
+     background-position: center;
+    }
+  </style>
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -58,26 +64,29 @@
                   <li data-target="#carousel-example-generic" data-slide-to="2" class=""></li>
                 </ol>
                 <div class="carousel-inner">
-                  <div class="item active">
+                  <div class="item active" style="background-image : url('http://placehold.it/900x500/39CCCC/ffffff&text=I+Love+Bootstrap')">
+                    <!--
                     <img src="http://placehold.it/900x500/39CCCC/ffffff&text=I+Love+Bootstrap" alt="First slide">
-
                     <div class="carousel-caption">
                       First Slide
                     </div>
+                    -->
                   </div>
-                  <div class="item">
+                  <div class="item" style="background-image : url('http://placehold.it/900x500/3c8dbc/ffffff&text=I+Love+Bootstrap')">
+                    <!--
                     <img src="http://placehold.it/900x500/3c8dbc/ffffff&text=I+Love+Bootstrap" alt="Second slide">
-
                     <div class="carousel-caption">
                       Second Slide
                     </div>
+                    -->
                   </div>
-                  <div class="item">
+                  <div class="item" style="background-image : url('http://placehold.it/900x500/f39c12/ffffff&text=I+Love+Bootstrap')">
+                    <!--
                     <img src="http://placehold.it/900x500/f39c12/ffffff&text=I+Love+Bootstrap" alt="Third slide">
-
                     <div class="carousel-caption">
                       Third Slide
                     </div>
+                    -->
                   </div>
                 </div>
                 <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
@@ -290,7 +299,7 @@
 // 1. To Do. ----------------------------------------------------------------
 // 페이지 초기 수신 데이터 Dummy
 var dummyInitialData = {
-  'forRecievedList' : [
+  forRecievedList : [
     {
       id : '211',
       description : 'received - test1',
@@ -412,7 +421,7 @@ var dummyInitialData = {
       state : 'false',
     },
   ],
-  'forSendList' : [
+  forSendList : [
     { id : '111', description : 'send - test1', checkperson : '0', },
     { id : '112', description : 'send - test2', checkperson : '2', },
     { id : '113', description : 'send - test3', checkperson : '3', },
@@ -447,7 +456,7 @@ var dummyInitialData = {
   ]
 }
 //>> 데이터 수신.
-//var initialData = ${}
+//var initialData;
 //var initialData = {}; //DB가 없는 경우에는 빈 객체를 입력하여야 한다.
 var initialData = dummyInitialData
 
@@ -678,23 +687,25 @@ function addToReceivedToDoList(target, obj) {
 $(document).on('click','.toolOnList',function(){
   var selected = $(this);
   var selectedData = $(this).data('thisItemObj');
-  var target;
-  if(selected.hasClass('sendListDel')) {
-    target = 'sendListDel';
-  } else if(selected.hasClass('receivedListDel')) {
-    target = 'receivedListDel';
-  } else if(selected.hasClass('receivedListCheck')) {
-    target = 'receivedListCheck';
+  if(('dummy' in selectedData) == false) {
+	  var target;
+	  if(selected.hasClass('sendListDel')) {
+	    target = 'sendListDel';
+	  } else if(selected.hasClass('receivedListDel')) {
+	    target = 'receivedListDel';
+	  } else if(selected.hasClass('receivedListCheck')) {
+	    target = 'receivedListCheck';
+	  }
+	  console.log('확인')
+	  console.log(target);
+	  console.log(selectedData);
+
+	  //>> ajax통신 결과를 리턴한다.
+	  //var commResult = $.parseJSON(toolButtonOnList(target, selectedData));
+
+	  //화면을 새로 그림.
+	  wholeRewrite(commResult)
   }
-  console.log('확인')
-  console.log(target);
-  console.log(selectedData);
-
-  //>> ajax통신 결과를 리턴한다.
-  var commResult = $.parseJSON(toolButtonOnList(target, selectedData));
-
-  //화면을 새로 그림.
-  wholeRewrite(commResult)
 })
 
 //화면 재구성.
