@@ -22,13 +22,9 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
-  <link rel="stylesheet" href="../resources/dist/css/skins/skin-blue.css">
+  <link rel="stylesheet" href="../resources/css/ant_fullcalendar1.0.3.css">
 
-  <style>
-    .item {
-     background-position: center;
-    }
-  </style>
+
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -302,31 +298,31 @@ var dummyInitialData = {
   forRecievedList : [
     {
       id : '211',
-      description : 'received - test1',
+      description : 'test1',
       fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
       state : 'true',
     },
     {
-      id : '212',
-      description : 'received - test2',
-      fromUser : { user_id : 'testAdmin', userName : '김사장', role : '101'},
-      state : 'true',
+      id : '214',
+      description : 'test2',
+      fromUser : { user_id : 'testAdmin', userName : '이사원', role : '102'},
+      state : 'false',
     },
     {
       id : '213',
-      description : 'received - test3',
+      description : 'test3',
       fromUser : { user_id : 'testAdmin', userName : '김사원', role : '102'},
       state : 'false',
     },
     {
       id : '214',
-      description : 'received - test4',
+      description : 'test4',
       fromUser : { user_id : 'testAdmin', userName : '이사원', role : '102'},
       state : 'false',
     },
     {
       id : '215',
-      description : 'received - test5',
+      description : 'test5',
       fromUser : { user_id : 'testAdmin', userName : '박사원', role : '102'},
       state : 'true',
     },
@@ -422,12 +418,12 @@ var dummyInitialData = {
     },
   ],
   forSendList : [
-    { id : '111', description : 'send - test1', checkperson : '0', },
-    { id : '112', description : 'send - test2', checkperson : '2', },
-    { id : '113', description : 'send - test3', checkperson : '3', },
-    { id : '114', description : 'send - test4', checkperson : '0', },
-    { id : '115', description : 'send - test5', checkperson : '5', },
-    { id : '116', description : 'send - test6', checkperson : '1', },
+    { id : '111', description : 'test1', checkperson : '0', },
+    { id : '112', description : 'test2', checkperson : '2', },
+    { id : '113', description : 'test3', checkperson : '3', },
+    { id : '114', description : 'test4', checkperson : '0', },
+    { id : '115', description : 'test5', checkperson : '5', },
+    { id : '116', description : 'test6', checkperson : '1', },
     { id : '117', description : 'send - test7', checkperson : '1', },
     { id : '118', description : 'send - test8', checkperson : '1', },
     { id : '119', description : 'send - test9', checkperson : '1', },
@@ -452,7 +448,7 @@ var dummyInitialData = {
     { id : '138', description : 'send - test28', checkperson : '1', },
     { id : '139', description : 'send - test29', checkperson : '1', },
     { id : '140', description : 'send - test30', checkperson : '1', },
-    { id : '141', description : 'send - test31', checkperson : '1', },
+    //{ id : '141', description : 'send - test31', checkperson : '1', },
   ]
 }
 //>> 데이터 수신.
@@ -479,7 +475,7 @@ var sendListPageBtnLoc = '#sendListPageBtn';
 
 // 직위별 라벨스타일 지정
 var roleColor = {
-  '101' : 'label-danger' , '102' : 'label-primary' , 'sys' : 'label-syetem'
+  '101' : 'label-danger' , '102' : 'label-primary' , 'sys' : 'label-info'
 }
 
 //높이조정 대상지정.
